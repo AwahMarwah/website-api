@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi Email</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .welcome-text {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .verify-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .verify-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .link-text {
+            word-break: break-all;
+            color: #667eea;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        .security-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🎉 Selamat Datang!</h1>
+        <p>Website Simple Ecommerce</p>
+    </div>
+
+    <div class="content">
+        <p class="welcome-text">Halo <strong>{{.Name}}</strong>,</p>
+
+        <p>Terima kasih telah mendaftar di Website Simple Ecommerce! Untuk melengkapi proses pendaftaran, silakan verifikasi alamat email Anda dengan mengklik tombol di bawah ini:</p>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{.VerifyLink}}" class="verify-button">✅ Verifikasi Email Saya</a>
+        </div>
+
+        <div class="info-box">
+            <strong>📋 Informasi Penting:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Link verifikasi ini akan kedaluwarsa dalam 24 jam</li>
+                <li>Setelah verifikasi, Anda dapat langsung menggunakan akun Anda</li>
+                <li>Jika tombol tidak berfungsi, salin dan tempel link di bawah ke browser Anda</li>
+            </ul>
+        </div>
+
+        <p>Jika tombol di atas tidak berfungsi, salin dan tempel link berikut ke browser Anda:</p>
+        <div class="link-text">{{.VerifyLink}}</div>
+
+        <div class="security-note">
+            <strong>🔒 Catatan Keamanan:</strong><br>
+            Jika Anda tidak mendaftar di Website Simple Ecommerce, abaikan email ini. Akun tidak akan dibuat tanpa verifikasi email.
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Website Simple Ecommerce</strong></p>
+        <p>Email ini dikirim secara otomatis, mohon jangan membalas email ini.</p>
+        <p style="margin-top: 15px; color: #999;">
+            © 2024 Website Simple Ecommerce. All rights reserved.
+        </p>
+    </div>
+</div>
+</body>
+</html>

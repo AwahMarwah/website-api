@@ -1,0 +1,524 @@
+openapi: 3.0.3
+info:
+  title: Website DB API
+  description: Swagger API dari Postman Collection
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+  - url: http://localhost:8085
+paths:
+  /health:
+    get:
+      tags:
+        - Default
+      summary: Health Check
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '500':
+          $ref: "#/components/responses/500"
+  /user/sign-up:
+    post:
+      tags:
+        - Auth
+      summary: Sign-Up User
+      description: Endpoint untuk pendaftaran user baru.
+      requestBody:
+        $ref: "#/components/requestBodies/authSignUp"
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User created
+        '400':
+          $ref: "#/components/responses/400"
+  /user/verify-email:
+    post:
+      tags:
+        - Auth
+      summary: Verify Email
+      description: Endpoint untuk verifikasi email pengguna.
+      requestBody:
+        $ref: "#/components/requestBodies/authVerifyEmail"
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+  /auth/resend-verification:
+    post:
+      tags:
+        - Auth
+      summary: Resend Verification Email
+      description: Endpoint for resending verification email.
+      requestBody:
+        $ref: "#/components/requestBodies/authResendVerification"
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+  /user/sign-in:
+    post:
+      tags:
+        - Auth
+      summary: Sign-In User
+      description: Endpoint for login user.
+      requestBody:
+        $ref: "#/components/requestBodies/authSignIn"
+      responses:
+        '200':
+          $ref: "#/components/responses/authSignIn"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
+  /auth/forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Forgot Password
+      description: endpoint for forgot password
+      requestBody:
+        $ref: "#/components/requestBodies/authForgotPassword"
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Reset Password
+      description: endpoint for reset password
+      requestBody:
+        $ref: "#/components/requestBodies/authResetPassword"
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
+  /user:
+    get:
+      tags:
+        - User
+      summary: Get List User
+      description: Endpoint for get list user
+      security:
+        - authorize: [ ]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        '200':
+          $ref: "#/components/responses/userList"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
+components:
+  securitySchemes:
+    authorize:
+      type: http
+      scheme: bearer
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        default: 10
+    page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+    status:
+      in: query
+      name: status
+      schema:
+        type: string
+        default: "active"
+      description: Can be one of "active" OR "checkout".
+  requestBodies:
+    authSignIn:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                default: ""
+              password:
+                type: string
+                default: ""
+                minLength: 8
+    authResetPassword:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                default: ''
+              new_password:
+                type: string
+                default: ''
+    authForgotPassword:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                default: ''
+    authResendVerification:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+    authVerifyEmail:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+            required:
+              - token
+    authSignUp:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              username:
+                type: string
+              phone_number:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+              role_name:
+                type: string
+            required:
+              - name
+              - username
+              - phone_number
+              - email
+              - role_name
+  responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  nullable: true
+                  default: null
+                message:
+                  type: string
+                  default: OK
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  nullable: true
+                  default: null
+                message:
+                  type: string
+                  default: Bad Request
+      '401':
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  nullable: true
+                  default: null
+                message:
+                  type: string
+                  default: Unauthorized
+      '404':
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  nullable: true
+                  default: null
+                message:
+                  type: string
+                  default: Not Found
+      '500':
+        description: Internal Server Error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  nullable: true
+                  default: null
+                message:
+                  type: string
+                  default: Internal Server Error
+      authSignIn:
+        description: User successfully logged in
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                    user:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        username:
+                          type: string
+                        email:
+                          type: string
+                        phone_number:
+                          type: string
+                        is_verified:
+                          type: boolean
+                    expires_at:
+                      type: integer
+                message:
+                  type: string
+      roleDetail:
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      default: ""
+                    name:
+                      type: string
+                      default: ""
+                    created_at:
+                      type: string
+                      default: ""
+                message:
+                  type: string
+                  default: OK
+      userDetail:
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      default: ""
+                    email:
+                      type: string
+                      default: ""
+                    role:
+                      type: string
+                      default: ""
+                    created_at:
+                      type: string
+                      default: ""
+                message:
+                  type: string
+                  default: OK
+      roleList:
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                        default: ""
+                      created_at:
+                        type: string
+                        default: ""
+                      updated_at:
+                        type: string
+                        default: ""
+                      deleted_at:
+                        type: string
+                        default: ""
+                message:
+                  type: string
+                  default: OK
+                page:
+                  type: object
+                  properties:
+                    current:
+                      type: integer
+                    size:
+                      type: integer
+                    total:
+                      type: integer
+      userList:
+        description: List user berhasil diambil
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        description: ID unik user
+                      name:
+                        type: string
+                        description: Nama lengkap user
+                      user_name:
+                        type: string
+                        description: Username user
+                      picture:
+                        type: string
+                        description: URL foto profil user
+                        nullable: true
+                      email:
+                        type: string
+                        format: email
+                        description: Email user
+                      phone_number:
+                        type: string
+                        description: Nomor telepon user
+                      is_verified:
+                        type: boolean
+                        description: Status verifikasi email
+                      created_at:
+                        type: string
+                        format: date-time
+                        description: Waktu pembuatan akun (ISO 8601)
+                      created_at_formatted:
+                        type: string
+                        description: Waktu pembuatan akun (format readable)
+                      created_by:
+                        type: string
+                        description: Pembuat akun
+                      updated_at:
+                        type: string
+                        format: date-time
+                        description: Waktu update terakhir (ISO 8601)
+                        nullable: true
+                      updated_at_formatted:
+                        type: string
+                        description: Waktu update terakhir (format readable)
+                      updated_by:
+                        type: string
+                        description: User yang melakukan update terakhir
+                      deleted_at:
+                        type: string
+                        format: date-time
+                        description: Waktu penghapusan (soft delete)
+                        nullable: true
+                      deleted_by_formatted:
+                        type: string
+                        description: Waktu penghapusan (format readable)
+                      deleted_by:
+                        type: string
+                        description: User yang melakukan penghapusan
+                message:
+                  type: string
+                  description: Pesan response
+                page:
+                  type: object
+                  description: Informasi pagination
+                  properties:
+                    current:
+                      type: integer
+                      description: Halaman saat ini
+                    size:
+                      type: integer
+                      description: Jumlah data per halaman
+                    total:
+                      type: integer
+                      format: int64
+                      description: Total keseluruhan data
