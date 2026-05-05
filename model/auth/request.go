@@ -13,4 +13,8 @@ type (
 	ResendVerificationRequest struct {
 		Email string `binding:"required,email" json:"email"`
 	}
+
+	ReqHeader struct {
+		Authorization string `binding:"required"`
+	}
 )

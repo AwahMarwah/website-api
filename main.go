@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"website-api/cache"
 	"website-api/database"
 	"website-api/router"
+
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -12,12 +14,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		if err = db.SqlDb.Close(); err != nil {
-			log.Fatal(err)
-		}
-	}()
-	if err = router.Run(db); err != nil {
+	defer db.SqlDb.Close()
+
+	// REDIS
+	redisClient := cache.NewRedis()
+
+	if err = router.Run(db, redisClient); err != nil {
 		log.Fatal(err)
 	}
+
 }

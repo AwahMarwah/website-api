@@ -30,4 +30,8 @@ const (
 	// Simple rate limiting
 	MaxVerificationAttempts = 5
 	RateLimitWindowHours    = 1
+
+	// User
+	UserNotFound     = "user not found"
+	UserHasSignedOut = "user has signed out"
 )

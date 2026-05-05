@@ -28,9 +28,9 @@ var corsConfig = cors.Config{
 		"PUT",
 		"DELETE",
 		"PATCH",
-		"OPTIONS", // ✅ WAJIB untuk preflight request
+		"OPTIONS",
 		"HEAD",
 	},
-	AllowCredentials: true,  // ✅ Tambahkan ini untuk Bearer token
-	MaxAge:           86400, // Cache preflight response 24 jam
+	AllowCredentials: true,
+	MaxAge:           86400,
 }

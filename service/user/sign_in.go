@@ -3,9 +3,6 @@ package user
 import (
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"time"
@@ -15,6 +12,10 @@ import (
 	"website-api/model/role"
 	userModel "website-api/model/user"
 	"website-api/utils"
+
+	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func (s *service) SignIn(reqBody *userModel.SignInRequest) (resData userModel.SignInResponse, statusCode int, err error) {
@@ -51,6 +52,7 @@ func (s *service) SignIn(reqBody *userModel.SignInRequest) (resData userModel.Si
 		UserID:   userDB.Id,
 		Email:    userDB.Email,
 		Username: userDB.UserName,
+		RoleName: roleDB.Name,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiresAt.Unix(),
 			IssuedAt:  time.Now().Unix(),
@@ -78,6 +80,16 @@ func (s *service) SignIn(reqBody *userModel.SignInRequest) (resData userModel.Si
 			Role:        roleDB,
 		},
 		ExpiresAt: expiresAt.Unix(),
+	}
+
+	userID := userDB.Id
+
+	resData.Token, err = encrypt.NewTokenWithClaims(claims)
+	if err != nil {
+		return resData, http.StatusInternalServerError, err
+	}
+	if err = s.userRepo.Update(&userID, &map[string]any{"token": resData.Token}); err != nil {
+		return resData, http.StatusInternalServerError, err
 	}
 
 	log.Printf("INFO: Successful sign in for email: %s", reqBody.Email)

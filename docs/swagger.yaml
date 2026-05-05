@@ -85,6 +85,21 @@ paths:
           $ref: "#/components/responses/401"
         '500':
           $ref: "#/components/responses/500"
+  /user/sign-out:
+    delete:
+      tags:
+        - Auth
+      summary: Sign out
+      description: Endpoint for Sign Out User
+      security:
+        - authorize: [ ]
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
   /auth/forgot-password:
     post:
       tags:
@@ -137,18 +152,122 @@ paths:
           $ref: "#/components/responses/401"
         '500':
           $ref: "#/components/responses/500"
+  /user/{id}:
+    get:
+      tags :
+        - User
+      summary: Detail User
+      description: Endpoint for detail user
+      security:
+        - authorize: []
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        '200':
+          $ref: "#/components/responses/userDetail"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
+    put:
+      tags:
+        - User
+      summary: Update User
+      description: Endpoint for update user
+      security:
+        - authorize: []
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        $ref: "#/components/requestBodies/userUpdate"
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
+  /role:
+    get:
+      tags:
+        - Role
+      summary: Get List Role
+      description: Endpoint for get list role
+      security:
+        - authorize: [ ]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        '200':
+          $ref: "#/components/responses/roleList"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
+  /role/{id}:
+    put:
+      tags:
+        - Role
+      summary: Update Role
+      description: Endpoint for Update Role
+      security:
+        - authorize: []
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        $ref: "#/components/requestBodies/roleUpdate"
+      responses:
+        '200':
+          $ref: "#/components/responses/200"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
+  /content-page/page/{slug}:
+    get:
+      tags:
+        - Content Page
+      summary: Get Content Page
+      description: Endpoint for Get Detail Content Page
+      parameters:
+        - $ref: "#/components/parameters/slug"
+      responses:
+        '200':
+          $ref: "#/components/responses/contentPageDetail"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+        '500':
+          $ref: "#/components/responses/500"
 components:
   securitySchemes:
     authorize:
       type: http
       scheme: bearer
+      bearerFormat: JWT
   parameters:
     id:
       name: id
       in: path
       required: true
       schema:
-        type: integer
+        type: string
+    slug:
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
     limit:
       in: query
       name: limit
@@ -250,275 +369,346 @@ components:
               - phone_number
               - email
               - role_name
+    userUpdate:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              role_id:
+                type: string
+                default: ""
+              phone_number:
+                type: string
+                default: ""
+    roleUpdate:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                default: ""
+              display_name:
+                type: string
+                default: ""
+              description:
+                type: string
+                default: ""
+              is_active:
+                type: boolean
+                default: false
   responses:
-      '200':
-        description: OK
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: string
-                  nullable: true
-                  default: null
-                message:
-                  type: string
-                  default: OK
-      '400':
-        description: Bad Request
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: string
-                  nullable: true
-                  default: null
-                message:
-                  type: string
-                  default: Bad Request
-      '401':
-        description: Unauthorized
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: string
-                  nullable: true
-                  default: null
-                message:
-                  type: string
-                  default: Unauthorized
-      '404':
-        description: Not Found
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: string
-                  nullable: true
-                  default: null
-                message:
-                  type: string
-                  default: Not Found
-      '500':
-        description: Internal Server Error
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: string
-                  nullable: true
-                  default: null
-                message:
-                  type: string
-                  default: Internal Server Error
-      authSignIn:
-        description: User successfully logged in
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    token:
-                      type: string
-                    user:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                        name:
-                          type: string
-                        username:
-                          type: string
-                        email:
-                          type: string
-                        phone_number:
-                          type: string
-                        is_verified:
-                          type: boolean
-                    expires_at:
-                      type: integer
-                message:
-                  type: string
-      roleDetail:
-        description: OK
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                nullable: true
+                default: null
+              message:
+                type: string
+                default: OK
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                nullable: true
+                default: null
+              message:
+                type: string
+                default: Bad Request
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                nullable: true
+                default: null
+              message:
+                type: string
+                default: Unauthorized
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                nullable: true
+                default: null
+              message:
+                type: string
+                default: Not Found
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                nullable: true
+                default: null
+              message:
+                type: string
+                default: Internal Server Error
+    authSignIn:
+      description: User successfully logged in
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      username:
+                        type: string
+                      email:
+                        type: string
+                      phone_number:
+                        type: string
+                      is_verified:
+                        type: boolean
+                  expires_at:
+                    type: integer
+              message:
+                type: string
+    roleDetail:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    default: ""
+                  name:
+                    type: string
+                    default: ""
+                  created_at:
+                    type: string
+                    default: ""
+              message:
+                type: string
+                default: OK
+    userDetail:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    default: ""
+                  email:
+                    type: string
+                    default: ""
+                  created_at:
+                    type: string
+                    default: ""
+                  role:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        default: ""
+                      name:
+                        type: string
+                        default: ""
+              message:
+                type: string
+                default: OK
+    roleList:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
                   type: object
                   properties:
                     id:
-                      type: string
-                      default: ""
+                      type: integer
                     name:
                       type: string
                       default: ""
+                    display_name:
+                      type: string
+                      default: ""
+                    description:
+                      type: string
+                      default: ""
                     created_at:
                       type: string
                       default: ""
-                message:
-                  type: string
-                  default: OK
-      userDetail:
-        description: OK
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
+                    updated_at:
+                      type: string
+                      default: ""
+                    deleted_at:
+                      type: string
+                      default: ""
+              message:
+                type: string
+                default: OK
+              page:
+                type: object
+                properties:
+                  current:
+                    type: integer
+                  size:
+                    type: integer
+                  total:
+                    type: integer
+    contentPageDetail:
+      description: detail content page
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    default: ""
+                  slug:
+                    type: string
+                    default: ""
+                  title:
+                    type: string
+                    default: ""
+                  content:
+                    type: string
+                    default: ""
+                  status:
+                    type: boolean
+              message:
+                type: string
+                default: OK
+    userList:
+      description: List user berhasil diambil
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
                   type: object
                   properties:
                     id:
                       type: string
-                      default: ""
+                      format: uuid
+                      description: ID unik user
+                    name:
+                      type: string
+                      description: Nama lengkap user
+                    user_name:
+                      type: string
+                      description: Username user
+                    picture:
+                      type: string
+                      description: URL foto profil user
+                      nullable: true
                     email:
                       type: string
-                      default: ""
-                    role:
+                      format: email
+                      description: Email user
+                    phone_number:
                       type: string
-                      default: ""
+                      description: Nomor telepon user
+                    is_verified:
+                      type: boolean
+                      description: Status verifikasi email
                     created_at:
                       type: string
-                      default: ""
-                message:
-                  type: string
-                  default: OK
-      roleList:
-        description: OK
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                        default: ""
-                      created_at:
-                        type: string
-                        default: ""
-                      updated_at:
-                        type: string
-                        default: ""
-                      deleted_at:
-                        type: string
-                        default: ""
-                message:
-                  type: string
-                  default: OK
-                page:
-                  type: object
-                  properties:
-                    current:
-                      type: integer
-                    size:
-                      type: integer
-                    total:
-                      type: integer
-      userList:
-        description: List user berhasil diambil
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                        description: ID unik user
-                      name:
-                        type: string
-                        description: Nama lengkap user
-                      user_name:
-                        type: string
-                        description: Username user
-                      picture:
-                        type: string
-                        description: URL foto profil user
-                        nullable: true
-                      email:
-                        type: string
-                        format: email
-                        description: Email user
-                      phone_number:
-                        type: string
-                        description: Nomor telepon user
-                      is_verified:
-                        type: boolean
-                        description: Status verifikasi email
-                      created_at:
-                        type: string
-                        format: date-time
-                        description: Waktu pembuatan akun (ISO 8601)
-                      created_at_formatted:
-                        type: string
-                        description: Waktu pembuatan akun (format readable)
-                      created_by:
-                        type: string
-                        description: Pembuat akun
-                      updated_at:
-                        type: string
-                        format: date-time
-                        description: Waktu update terakhir (ISO 8601)
-                        nullable: true
-                      updated_at_formatted:
-                        type: string
-                        description: Waktu update terakhir (format readable)
-                      updated_by:
-                        type: string
-                        description: User yang melakukan update terakhir
-                      deleted_at:
-                        type: string
-                        format: date-time
-                        description: Waktu penghapusan (soft delete)
-                        nullable: true
-                      deleted_by_formatted:
-                        type: string
-                        description: Waktu penghapusan (format readable)
-                      deleted_by:
-                        type: string
-                        description: User yang melakukan penghapusan
-                message:
-                  type: string
-                  description: Pesan response
-                page:
-                  type: object
-                  description: Informasi pagination
-                  properties:
-                    current:
-                      type: integer
-                      description: Halaman saat ini
-                    size:
-                      type: integer
-                      description: Jumlah data per halaman
-                    total:
-                      type: integer
-                      format: int64
-                      description: Total keseluruhan data
+                      format: date-time
+                      description: Waktu pembuatan akun (ISO 8601)
+                    created_at_formatted:
+                      type: string
+                      description: Waktu pembuatan akun (format readable)
+                    created_by:
+                      type: string
+                      description: Pembuat akun
+                    updated_at:
+                      type: string
+                      format: date-time
+                      description: Waktu update terakhir (ISO 8601)
+                      nullable: true
+                    updated_at_formatted:
+                      type: string
+                      description: Waktu update terakhir (format readable)
+                    updated_by:
+                      type: string
+                      description: User yang melakukan update terakhir
+                    deleted_at:
+                      type: string
+                      format: date-time
+                      description: Waktu penghapusan (soft delete)
+                      nullable: true
+                    deleted_by_formatted:
+                      type: string
+                      description: Waktu penghapusan (format readable)
+                    deleted_by:
+                      type: string
+                      description: User yang melakukan penghapusan
+              message:
+                type: string
+                description: Pesan response
+              page:
+                type: object
+                description: Informasi pagination
+                properties:
+                  current:
+                    type: integer
+                    description: Halaman saat ini
+                  size:
+                    type: integer
+                    description: Jumlah data per halaman
+                  total:
+                    type: integer
+                    format: int64
+                    description: Total keseluruhan data

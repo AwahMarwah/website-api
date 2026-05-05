@@ -1,11 +1,12 @@
 package user
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"website-api/library/pagination"
 	"website-api/library/response"
 	userModel "website-api/model/user"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (c *controller) List(ctx *gin.Context) {

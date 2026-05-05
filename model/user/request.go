@@ -27,4 +27,14 @@ type (
 	VerifyEmailRequest struct {
 		Token string `binding:"required" json:"token"`
 	}
+
+	UserUpdateRequest struct {
+		Path struct {
+			Id string `uri:"id" binding:"required"`
+		}
+		Body struct {
+			PhoneNumber string `binding:"required" json:"phone_number"`
+			RoleID      string `binding:"required" json:"role_id"`
+		}
+	}
 )

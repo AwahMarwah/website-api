@@ -13,6 +13,9 @@ type (
 		SignIn(reqBody *userModel.SignInRequest) (resData userModel.SignInResponse, statusCode int, err error)
 		SignUp(reqBody *userModel.RegisterRequest) (statusCode int, err error)
 		VerifyEmail(reqBody userModel.VerifyEmailRequest) (err error)
+		Update(req *userModel.UserUpdateRequest) (statusCode int, err error)
+		Seed() (err error)
+		SignOut(userId string) (err error)
 	}
 
 	service struct {

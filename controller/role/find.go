@@ -1,9 +1,10 @@
 package role
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"website-api/library/response"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (c *controller) Find(ctx *gin.Context) {

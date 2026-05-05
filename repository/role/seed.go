@@ -19,6 +19,20 @@ func (r *repo) Seed() error {
 			CreatedBy:   "system",
 		},
 		{
+			Name:        "staff",
+			DisplayName: "Staff",
+			Description: "",
+			IsActive:    true,
+			CreatedBy:   "system",
+		},
+		{
+			Name:        "finance",
+			DisplayName: "Finance",
+			Description: "",
+			IsActive:    true,
+			CreatedBy:   "system",
+		},
+		{
 			Name:        "merchant",
 			DisplayName: "Merchant",
 			Description: "",

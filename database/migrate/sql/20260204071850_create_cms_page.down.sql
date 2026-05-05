@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS cms_pages;
+DROP TABLE IF EXISTS cms_faqs;

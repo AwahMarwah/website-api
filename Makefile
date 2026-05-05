@@ -10,6 +10,10 @@ run_db_migrate_down:
 run_db_seed_role:
 	go run database/migrate/seeding/role/role.go
 
+run_db_seed_content_page:
+	go run database/migrate/seeding/content-page/content_page.go
+
+
 # Jalankan test dengan environment yang sudah disetup
 go test -v ./service/user/
 

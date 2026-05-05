@@ -11,6 +11,7 @@ type (
 		ForgotPassword(req *authModel.ForgotPasswordRequest) (statusCode int, message string, err error)
 		ResetPassword(req *authModel.ResetPasswordRequest) (statusCode int, message string, err error)
 		ResendVerification(req *authModel.ResendVerificationRequest) (statusCode int, err error)
+		Authorize(authHeader *string) (userID string, statusCode int, err error)
 	}
 
 	service struct {
