@@ -9,11 +9,13 @@ import (
 	"net/http"
 	"time"
 	"website-api/common"
-	lib "website-api/library/helper/email"
 	authModel "website-api/model/auth"
 	userModel "website-api/model/user"
+	"website-api/task"
+	"website-api/worker"
 
 	"github.com/google/uuid"
+	"github.com/hibiken/asynq"
 	"gorm.io/gorm"
 )
 
@@ -53,8 +55,25 @@ func (s *service) ForgotPassword(req *authModel.ForgotPasswordRequest) (statusCo
 
 	// send email reset password
 	// TO DO: replace with actual email service
-	if err := lib.SendResetPasswordByEmail(&user, token); err != nil {
-		log.Printf("Failed to send reset password email to %s: %v", user.Email, err)
+	//if err := lib.SendResetPasswordByEmail(&user, token); err != nil {
+	//	log.Printf("Failed to send reset password email to %s: %v", user.Email, err)
+	//}
+
+	redisClient := worker.NewRedisClient()
+	defer redisClient.Close()
+
+	emailTask, err := task.NewResetPasswordTask(user.Name, user.Email, token)
+	if err != nil {
+		log.Printf("failed create task: %v", err)
+	} else {
+		_, err = redisClient.Enqueue(
+			emailTask,
+			asynq.MaxRetry(3),
+			asynq.Queue("critical"),
+		)
+		if err != nil {
+			log.Printf("failed enqueue email: %v", err)
+		}
 	}
 	return http.StatusOK, common.PasswordResetRequestSent, nil
 }

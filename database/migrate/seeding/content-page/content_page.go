@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"website-api/cache"
 	"website-api/common"
 	"website-api/database"
 	contentPageRepo "website-api/repository/content-page"
@@ -20,7 +21,12 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
-	contentPageService := content_page.NewService(contentPageRepo.NewRepo(db.GormDb))
+
+	rdbClient := cache.NewRedis()
+	redisCache := cache.NewRedisCache(rdbClient)
+
+	repo := contentPageRepo.NewRepo(db.GormDb)
+	contentPageService := content_page.NewService(repo, redisCache)
 	if err = contentPageService.Seed(); err != nil {
 		log.Fatal(err)
 	}
