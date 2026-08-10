@@ -15,14 +15,16 @@ type (
 	}
 
 	service struct {
-		authRepo authRepo.IRepo
-		userRepo userRepo.IRepo
+		authRepo    authRepo.IRepo
+		userRepo    userRepo.IRepo
+		queueClient QueueClient
 	}
 )
 
-func NewService(userRepo userRepo.IRepo, authRepo authRepo.IRepo) IService {
+func NewService(userRepo userRepo.IRepo, authRepo authRepo.IRepo, queueClient QueueClient) IService {
 	return &service{
-		userRepo: userRepo,
-		authRepo: authRepo,
+		userRepo:    userRepo,
+		authRepo:    authRepo,
+		queueClient: queueClient,
 	}
 }

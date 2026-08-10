@@ -12,7 +12,6 @@ import (
 	authModel "website-api/model/auth"
 	userModel "website-api/model/user"
 	"website-api/task"
-	"website-api/worker"
 
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
@@ -59,14 +58,11 @@ func (s *service) ForgotPassword(req *authModel.ForgotPasswordRequest) (statusCo
 	//	log.Printf("Failed to send reset password email to %s: %v", user.Email, err)
 	//}
 
-	redisClient := worker.NewRedisClient()
-	defer redisClient.Close()
-
 	emailTask, err := task.NewResetPasswordTask(user.Name, user.Email, token)
 	if err != nil {
 		log.Printf("failed create task: %v", err)
 	} else {
-		_, err = redisClient.Enqueue(
+		_, err = s.queueClient.Enqueue(
 			emailTask,
 			asynq.MaxRetry(3),
 			asynq.Queue("critical"),

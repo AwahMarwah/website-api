@@ -1,10 +1,12 @@
 package auth
 
 import (
-	"gorm.io/gorm"
 	authRepo "website-api/repository/auth"
 	userRepo "website-api/repository/user"
 	"website-api/service/auth"
+	"website-api/worker"
+
+	"gorm.io/gorm"
 )
 
 type controller struct {
@@ -12,5 +14,5 @@ type controller struct {
 }
 
 func NewController(db *gorm.DB) *controller {
-	return &controller{authService: auth.NewService(userRepo.NewRepo(db), authRepo.NewRepo(db))}
+	return &controller{authService: auth.NewService(userRepo.NewRepo(db), authRepo.NewRepo(db), worker.NewRedisClient())}
 }

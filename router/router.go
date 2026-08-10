@@ -3,6 +3,7 @@ package router
 import (
 	"website-api/controller/auth"
 	"website-api/controller/brand"
+	"website-api/controller/cart"
 	"website-api/controller/category"
 	content_page "website-api/controller/content-page"
 	health_check "website-api/controller/health-check"
@@ -90,6 +91,14 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 		// PUBLIC
 		categoryGroup.GET("", categoryController.GetCategory)
 		categoryGroup.GET(":slug")
+	}
+
+	cartController := cart.NewController(db.GormDb)
+	cartGroup := router.Group("/cart")
+	{
+		cartGroup.GET("", middleware.AuthMiddleware(db.GormDb), cartController.GetCart)
+		cartGroup.POST("", middleware.AuthMiddleware(db.GormDb), cartController.Create)
+		//cartGroup.DELETE("", middleware.AuthMiddleware(db.GormDb), cartController.Delete)
 	}
 
 	return router.Run()

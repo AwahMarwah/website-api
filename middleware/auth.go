@@ -10,6 +10,7 @@ import (
 	authRepo "website-api/repository/auth"
 	userRepo "website-api/repository/user"
 	"website-api/service/auth"
+	"website-api/worker"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -67,7 +68,7 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		authService := auth.NewService(userRepo.NewRepo(db), authRepo.NewRepo(db))
+		authService := auth.NewService(userRepo.NewRepo(db), authRepo.NewRepo(db), worker.NewRedisClient())
 		userId, statusCode, err := authService.Authorize(&reqHeader.Authorization)
 		if err != nil {
 			response.Error(ctx, statusCode, err.Error())
