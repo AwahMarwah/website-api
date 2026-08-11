@@ -3,19 +3,21 @@ package user
 import (
 	"time"
 	"website-api/model/role"
+	"website-api/model/user_address"
 )
 
 type (
 	DetailResponse struct {
-		ID          string    `json:"id"`
-		Name        string    `json:"name"`
-		UserName    string    `json:"user_name"`
-		Email       string    `json:"email"`
-		PhoneNumber string    `json:"phone_number"`
-		IsVerified  bool      `json:"is_verified"`
-		CreatedAt   string    `json:"created_at"`
-		UpdatedAt   string    `json:"updated_at"`
-		Role        role.Role `json:"role"`
+		ID          string                   `json:"id"`
+		Name        string                   `json:"name"`
+		UserName    string                   `json:"user_name"`
+		Email       string                   `json:"email"`
+		PhoneNumber string                   `json:"phone_number"`
+		IsVerified  bool                     `json:"is_verified"`
+		CreatedAt   string                   `json:"created_at"`
+		UpdatedAt   string                   `json:"updated_at"`
+		Role        role.Role                `json:"role"`
+		Address     user_address.UserAddress `json:"address"`
 	}
 
 	ListUserResponse struct {

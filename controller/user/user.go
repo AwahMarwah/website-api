@@ -1,10 +1,12 @@
 package user
 
 import (
-	"gorm.io/gorm"
 	roleRepo "website-api/repository/role"
 	userRepo "website-api/repository/user"
+	userAddressRepo "website-api/repository/user_address"
 	"website-api/service/user"
+
+	"gorm.io/gorm"
 )
 
 type controller struct {
@@ -12,5 +14,5 @@ type controller struct {
 }
 
 func NewController(db *gorm.DB) *controller {
-	return &controller{userService: user.NewService(userRepo.NewRepo(db), roleRepo.NewRepo(db))}
+	return &controller{userService: user.NewService(userRepo.NewRepo(db), roleRepo.NewRepo(db), userAddressRepo.NewRepo(db))}
 }

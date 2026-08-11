@@ -4,6 +4,7 @@ import (
 	userModel "website-api/model/user"
 	"website-api/repository/role"
 	"website-api/repository/user"
+	userAddressRepo "website-api/repository/user_address"
 )
 
 type (
@@ -19,14 +20,16 @@ type (
 	}
 
 	service struct {
-		userRepo user.IRepo
-		roleRepo role.IRepo
+		userRepo        user.IRepo
+		roleRepo        role.IRepo
+		userAddressRepo userAddressRepo.IRepo
 	}
 )
 
-func NewService(userRepo user.IRepo, roleRepo role.IRepo) IService {
+func NewService(userRepo user.IRepo, roleRepo role.IRepo, userAddressRepo userAddressRepo.IRepo) IService {
 	return &service{
-		userRepo: userRepo,
-		roleRepo: roleRepo,
+		userRepo:        userRepo,
+		roleRepo:        roleRepo,
+		userAddressRepo: userAddressRepo,
 	}
 }
