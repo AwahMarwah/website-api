@@ -5,5 +5,5 @@ import (
 )
 
 func (r *repo) Take(selectParams []string, conditions *modelContentPage.CmsPage) (cmsPage modelContentPage.CmsPage, err error) {
-	return cmsPage, r.db.Debug().Select(selectParams).Take(&cmsPage, conditions).Error
+	return cmsPage, r.db.Select(selectParams).Take(&cmsPage, conditions).Error
 }

@@ -1,6 +1,7 @@
 package cart
 
 import (
+	"fmt"
 	"net/http"
 	cartModel "website-api/model/cart"
 	"website-api/utils"
@@ -8,6 +9,7 @@ import (
 
 func (s *service) GetCartByUserID(userID string) (resData cartModel.GetCartByUserIDResponse, statusCode int, err error) {
 	items, err := s.cartRepo.GetItemByUserID(userID)
+	fmt.Println(items, "item service")
 	if err != nil {
 		statusCode = http.StatusInternalServerError
 	}

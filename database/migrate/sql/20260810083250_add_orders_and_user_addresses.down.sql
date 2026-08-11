@@ -1,0 +1,2 @@
+DROP TABLE IF EXIST orders;
+DROP TABLE IF EXIST user_addresses;

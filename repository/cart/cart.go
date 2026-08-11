@@ -8,8 +8,10 @@ import (
 
 type (
 	IRepo interface {
-		Create(reqBody cart.Cart) error
+		Create(reqBody *cart.CartItem) error
 		GetItemByUserID(userID string) (resData []cart.CartItemResponse, err error)
+		DeleteItems(userID string, variantIDs []string) error
+		ClearAll(userID string) error
 	}
 
 	repo struct {

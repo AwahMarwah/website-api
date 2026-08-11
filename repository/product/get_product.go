@@ -8,7 +8,7 @@ import (
 func (r *repo) GetProduct(reqQuery *productModel.GetListProductReqQuerry) (resData []productModel.ListProductResponse, count int64, err error) {
 	resData = make([]productModel.ListProductResponse, 0)
 
-	err = r.db.Debug().Model(&productModel.Product{}).
+	err = r.db.Model(&productModel.Product{}).
 		Select(`products.id, 
 			products.name, 
 			products.slug, 

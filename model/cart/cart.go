@@ -1,9 +1,21 @@
 package cart
 
-type Cart struct {
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+type CartItem struct {
 	ID               string
 	UserID           string
 	ProductVariantID string
 	Qty              int
-	CreatedAt        string
+	CreatedAt        time.Time
+}
+
+func (cartItem *CartItem) BeforeCreate(*gorm.DB) error {
+	cartItem.ID = uuid.New().String()
+	return nil
 }

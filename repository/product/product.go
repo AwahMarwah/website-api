@@ -8,7 +8,10 @@ import (
 
 type (
 	IRepo interface {
+		FindByID(id string) (resData productModel.Product, err error)
 		GetProduct(reqQuery *productModel.GetListProductReqQuerry) (resData []productModel.ListProductResponse, count int64, err error)
+		Update(product productModel.Product) error
+		WithTx(tx *gorm.DB) IRepo
 	}
 
 	repo struct {

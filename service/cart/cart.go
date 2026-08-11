@@ -9,6 +9,7 @@ type (
 	IService interface {
 		Create(reqBody *cartModel.CartRequestBody) (statusCode int, err error)
 		GetCartByUserID(userID string) (resData cartModel.GetCartByUserIDResponse, statusCode int, err error)
+		DeleteItems(req *cartModel.DeleteCartRequest) error
 	}
 
 	service struct {

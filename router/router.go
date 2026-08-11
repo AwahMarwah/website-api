@@ -7,6 +7,7 @@ import (
 	"website-api/controller/category"
 	content_page "website-api/controller/content-page"
 	health_check "website-api/controller/health-check"
+	"website-api/controller/order"
 	"website-api/controller/product"
 	"website-api/controller/role"
 	"website-api/controller/user"
@@ -98,7 +99,13 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 	{
 		cartGroup.GET("", middleware.AuthMiddleware(db.GormDb), cartController.GetCart)
 		cartGroup.POST("", middleware.AuthMiddleware(db.GormDb), cartController.Create)
-		//cartGroup.DELETE("", middleware.AuthMiddleware(db.GormDb), cartController.Delete)
+		cartGroup.DELETE("", middleware.AuthMiddleware(db.GormDb), cartController.Delete)
+	}
+
+	orderController := order.NewController(db.GormDb)
+	orderGroup := router.Group("/order")
+	{
+		orderGroup.POST("", middleware.AuthMiddleware(db.GormDb), orderController.Checkout)
 	}
 
 	return router.Run()
