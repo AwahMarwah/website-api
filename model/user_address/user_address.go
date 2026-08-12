@@ -1,6 +1,11 @@
 package user_address
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type UserAddress struct {
 	ID            string    `json:"id"`
@@ -13,4 +18,9 @@ type UserAddress struct {
 	IsPrimary     bool      `json:"is_primary"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+func (userAddress *UserAddress) BeforeCreate(*gorm.DB) error {
+	userAddress.ID = uuid.New().String()
+	return nil
 }

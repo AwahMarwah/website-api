@@ -11,6 +11,7 @@ import (
 	"website-api/controller/product"
 	"website-api/controller/role"
 	"website-api/controller/user"
+	userAddressController "website-api/controller/user_address"
 	"website-api/database"
 	"website-api/middleware"
 
@@ -58,6 +59,16 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 		userGroup.GET("", middleware.AuthMiddleware(db.GormDb), userController.List)
 		userGroup.PUT("/:id", middleware.AuthMiddleware(db.GormDb), userController.Update)
 		userGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), userController.Detail)
+	}
+
+	userAddressController := userAddressController.NewController(db.GormDb, redis)
+	userAddressGroup := router.Group("/user-address")
+	{
+		userAddressGroup.GET("", middleware.AuthMiddleware(db.GormDb), userAddressController.List)
+		userAddressGroup.POST("", middleware.AuthMiddleware(db.GormDb), userAddressController.Create)
+		userAddressGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), userAddressController.Detail)
+		userAddressGroup.DELETE("/:id", middleware.AuthMiddleware(db.GormDb), userAddressController.Delete)
+		userAddressGroup.PATCH("/:id/primary", middleware.AuthMiddleware(db.GormDb), userAddressController.ChangePrimary)
 	}
 
 	// PRIVATE
