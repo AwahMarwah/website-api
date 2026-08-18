@@ -68,6 +68,7 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 		userAddressGroup.POST("", middleware.AuthMiddleware(db.GormDb), userAddressController.Create)
 		userAddressGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), userAddressController.Detail)
 		userAddressGroup.DELETE("/:id", middleware.AuthMiddleware(db.GormDb), userAddressController.Delete)
+		userAddressGroup.PUT("/:id", middleware.AuthMiddleware(db.GormDb), userAddressController.Update)
 		userAddressGroup.PATCH("/:id/primary", middleware.AuthMiddleware(db.GormDb), userAddressController.ChangePrimary)
 	}
 

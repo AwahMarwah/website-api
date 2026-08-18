@@ -16,6 +16,11 @@ type UserAddress struct {
 	City          string    `json:"city"`
 	PostalCode    string    `json:"postal_code"`
 	IsPrimary     bool      `json:"is_primary"`
+	ProvinceID    string    `json:"province_id"`
+	CityID        string    `json:"city_id"`
+	DistrictID    string    `json:"district_id"`
+	SubdistrictID string    `json:"subdistrict_id"`
+	DestinationID int64     `json:"destination_id"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
