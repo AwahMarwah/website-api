@@ -1,6 +1,10 @@
 package filter
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 func FilterBrand(brand string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
@@ -33,6 +37,36 @@ func FilterMaxPrice(max float64) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if max > 0 {
 			return db.Where("pv.price <= ?", max)
+		}
+		return db
+	}
+}
+
+func FilterProvinceSearch(request string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if request != "" {
+			pattern := fmt.Sprintf("%%%s%%", request)
+			return db.Where("id ILIKE ? OR name ILIKE ?", pattern, pattern)
+		}
+		return db
+	}
+}
+
+func FilterCitiesSearch(request string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if request != "" {
+			pattern := fmt.Sprintf("%%%s%%", request)
+			return db.Where("id ILIKE ? OR name ILIKE ? OR province_id ILIKE ?", pattern, pattern, pattern)
+		}
+		return db
+	}
+}
+
+func FilterDistrictSearch(request string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if request != "" {
+			pattern := fmt.Sprintf("%%%s%%", request)
+			return db.Where("id ILIKE ? OR city_id ILIKE ? OR name ILIKE ?", pattern, pattern, pattern)
 		}
 		return db
 	}

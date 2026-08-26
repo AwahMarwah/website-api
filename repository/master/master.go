@@ -1,6 +1,7 @@
 package master
 
 import (
+	"website-api/library/helper/filter"
 	city_shipping "website-api/model/city-shipping"
 	"website-api/model/master"
 
@@ -15,6 +16,9 @@ type (
 		TakeSubdistrict(selectParams []string, conditions *master.Subdistrict) (subdistrict master.Subdistrict, err error)
 		TakeCityShippingMapping(selectParams []string, conditions *city_shipping.CityShippingMapping) (city_shipping city_shipping.CityShippingMapping, err error)
 		CreateCityShippingMapping(reqBody *city_shipping.CityShippingMapping) error
+		FindProvince(reqQuery *master.GetListProvinceRequest) (resData []master.ListProvinceResponse, count int64, err error)
+		FindCities(reqQuery *master.GetListCitiesRequest) (resData []master.City, count int64, err error)
+		FindDistrict(reqQuery *master.GetListDistrictsRequest) (resData []master.District, count int64, err error)
 	}
 
 	repo struct {
@@ -48,4 +52,22 @@ func (r *repo) TakeCityShippingMapping(selectParams []string, conditions *city_s
 
 func (r *repo) CreateCityShippingMapping(reqBody *city_shipping.CityShippingMapping) error {
 	return r.db.Create(reqBody).Error
+}
+
+func (r *repo) FindProvince(reqQuery *master.GetListProvinceRequest) (resData []master.ListProvinceResponse, count int64, err error) {
+	resData = make([]master.ListProvinceResponse, 0)
+
+	return resData, count, r.db.Model(&master.Province{}).Scopes(filter.FilterProvinceSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
+}
+
+func (r *repo) FindCities(reqQuery *master.GetListCitiesRequest) (resData []master.City, count int64, err error) {
+	resData = make([]master.City, 0)
+
+	return resData, count, r.db.Model(&master.City{}).Scopes(filter.FilterCitiesSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
+}
+
+func (r *repo) FindDistrict(reqQuery *master.GetListDistrictsRequest) (resData []master.District, count int64, err error) {
+	resData = make([]master.District, 0)
+
+	return resData, count, r.db.Debug().Model(&master.District{}).Scopes(filter.FilterCitiesSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
 }

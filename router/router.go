@@ -7,6 +7,7 @@ import (
 	"website-api/controller/category"
 	content_page "website-api/controller/content-page"
 	health_check "website-api/controller/health-check"
+	"website-api/controller/master"
 	"website-api/controller/order"
 	"website-api/controller/product"
 	"website-api/controller/role"
@@ -18,12 +19,18 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "website-api/docs"
 )
 
 func Run(db database.DB, redis *redis.Client) (err error) {
 	router := gin.Default()
 	router.Use(middleware.NgrokSkipWarning())
 	router.Use(cors.New(corsConfig))
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// PUBLIC API
 	healthController := health_check.NewController(db.SqlDb)
@@ -118,6 +125,14 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 	orderGroup := router.Group("/order")
 	{
 		orderGroup.POST("", middleware.AuthMiddleware(db.GormDb), orderController.Checkout)
+	}
+
+	masterController := master.NewController(db.GormDb)
+	masterGroup := router.Group("/master")
+	{
+		masterGroup.GET("/provincies", masterController.GetProvince)
+		masterGroup.GET("/cities", masterController.GetCities)
+		masterGroup.GET("/district", masterController.GetDistrict)
 	}
 
 	return router.Run()
