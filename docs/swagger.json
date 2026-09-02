@@ -262,6 +262,106 @@
                     }
                 }
             }
+        },
+        "/order": {
+            "post": {
+                "description": "Membuat order baru dan menginisiasi pembayaran via Midtrans Snap",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "Checkout",
+                "parameters": [
+                    {
+                        "description": "Checkout Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.CheckoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order berhasil dibuat",
+                        "schema": {
+                            "$ref": "#/definitions/order.CheckoutResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/notification": {
+            "post": {
+                "description": "Merespons notifikasi webhook dari Midtrans (public endpoint, tanpa auth)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "Handle Payment Notification",
+                "parameters": [
+                    {
+                        "description": "Midtrans Notification Payload",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/midtrans.NotificationPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notifikasi diproses",
+                        "schema": {
+                            "$ref": "#/definitions/order.NotificationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}/payment-link": {
+            "post": {
+                "description": "Membuat payment link Midtrans untuk order yang masih PENDING sehingga bisa dibagikan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "Create Payment Link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment link berhasil dibuat",
+                        "schema": {
+                            "$ref": "#/definitions/order.PaymentLinkResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -403,6 +503,157 @@
                             "example": 37
                         }
                     }
+                }
+            }
+        },
+        "midtrans.NotificationPayload": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "expiry_time": {
+                    "type": "string"
+                },
+                "fraud_status": {
+                    "type": "string"
+                },
+                "gross_amount": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_code": {
+                    "type": "string"
+                },
+                "payment_type": {
+                    "type": "string"
+                },
+                "settlement_time": {
+                    "type": "string"
+                },
+                "signature_key": {
+                    "type": "string"
+                },
+                "status_code": {
+                    "type": "string"
+                },
+                "status_message": {
+                    "type": "string"
+                },
+                "store": {
+                    "type": "string"
+                },
+                "transaction_id": {
+                    "type": "string"
+                },
+                "transaction_status": {
+                    "type": "string"
+                },
+                "transaction_time": {
+                    "type": "string"
+                },
+                "va_numbers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/midtrans.VaNumber"
+                    }
+                }
+            }
+        },
+        "midtrans.VaNumber": {
+            "type": "object",
+            "properties": {
+                "bank": {
+                    "type": "string"
+                },
+                "va_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.CheckoutItem": {
+            "type": "object",
+            "properties": {
+                "qty": {
+                    "type": "integer"
+                },
+                "variant_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.CheckoutRequest": {
+            "type": "object",
+            "required": [
+                "address_id",
+                "payment_method",
+                "shipping_fee"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.CheckoutItem"
+                    }
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "shipping_fee": {
+                    "type": "number"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.CheckoutResponse": {
+            "type": "object",
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_token": {
+                    "type": "string"
+                },
+                "payment_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.NotificationResponse": {
+            "type": "object",
+            "properties": {
+                "order_id": {
+                    "type": "string"
+                },
+                "processed": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.PaymentLinkResponse": {
+            "type": "object",
+            "properties": {
+                "order_id": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         }

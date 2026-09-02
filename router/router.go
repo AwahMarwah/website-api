@@ -126,6 +126,9 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 	orderGroup := router.Group("/order")
 	{
 		orderGroup.POST("", middleware.AuthMiddleware(db.GormDb), orderController.Checkout)
+		orderGroup.POST("/:id/payment-link", middleware.AuthMiddleware(db.GormDb), orderController.CreatePaymentLink)
+		// PUBLIC - webhook dari Midtrans (tanpa JWT)
+		orderGroup.POST("/notification", orderController.HandleNotification)
 	}
 
 	masterController := master.NewController(db.GormDb)

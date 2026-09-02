@@ -13,4 +13,8 @@ type (
 		VariantID string `json:"variant_id"`
 		Qty       int    `json:"qty"`
 	}
+
+	ReqPath struct {
+		Id string `uri:"id" binding:"required"`
+	}
 )

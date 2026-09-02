@@ -8,9 +8,7 @@ import (
 	userModel "website-api/model/user"
 	"website-api/utils/email"
 	"website-api/utils/template"
-)
-
-// Helper function untuk mengirim email verifikasi
+)// Helper function untuk mengirim email verifikasi
 func SendVerificationEmail(user *userModel.User, verificationToken string) error {
 	subject := "Verifikasi Email Akun Anda - Website Simple Ecommerce"
 	appBaseURL := os.Getenv("APP_BASE_URL")
@@ -58,6 +56,25 @@ func SendResetPasswordByEmail(user *userModel.User, token string) error {
 			log.Printf("Gagal mengirim email reset password ke %s: %v", user.Email, err)
 		} else {
 			log.Printf("Email reset password berhasil dikirim ke %s", user.Email)
+		}
+	}()
+	return nil
+}
+
+func SendPaymentSuccessByEmail(name, recipient, orderID string, totalAmount float64) error {
+	subject := "Pembayaran Berhasil - Website Simple Ecommerce"
+
+	body, err := template.RenderPaymentSuccessEmail(name, orderID, totalAmount)
+	if err != nil {
+		return fmt.Errorf("gagal membuat template email pembayaran: %w", err)
+	}
+
+	emailSender := email.NewSMTPFromEnv()
+	go func() {
+		if err := emailSender.SendEmail(recipient, subject, body); err != nil {
+			log.Printf("Gagal mengirim email pembayaran ke %s: %v", recipient, err)
+		} else {
+			log.Printf("Email pembayaran berhasil dikirim ke %s", recipient)
 		}
 	}()
 	return nil

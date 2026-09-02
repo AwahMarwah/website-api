@@ -10,11 +10,13 @@ import (
 )
 
 type EmailTemplateData struct {
-	Name       string
-	VerifyLink string
-	ResetLink  string
-	Email      string
-	AppName    string
+	Name        string
+	VerifyLink  string
+	ResetLink   string
+	Email       string
+	AppName     string
+	OrderID     string
+	TotalAmount string
 }
 
 func getProjectRoot() string {
@@ -60,4 +62,14 @@ func RenderResetPasswordEmail(name, resetLink string) (string, error) {
 		AppName:   "Website Simple Ecommerce",
 	}
 	return RenderEmailTemplate("reset-password", data)
+}
+
+func RenderPaymentSuccessEmail(name, orderID string, totalAmount float64) (string, error) {
+	data := EmailTemplateData{
+		Name:        name,
+		OrderID:     orderID,
+		TotalAmount: fmt.Sprintf("%.2f", totalAmount),
+		AppName:     "Website Simple Ecommerce",
+	}
+	return RenderEmailTemplate("payment-success", data)
 }

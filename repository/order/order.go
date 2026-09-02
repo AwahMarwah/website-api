@@ -1,6 +1,7 @@
 package order
 
 import (
+	"time"
 	"website-api/model/order"
 
 	"gorm.io/gorm"
@@ -8,18 +9,57 @@ import (
 
 type (
 	IRepo interface {
-		Create(order order.OrderItem) error
+		FindByID(id string) (order.Order, error)
+		FindItemsByOrderID(orderID string) ([]order.OrderItem, error)
+		Update(order.Order) error
+		UpdateStatus(id, status string) error
+		UpdatePaymentInfo(id string, values map[string]interface{}) error
+		FindExpiredPending(now time.Time) ([]order.Order, error)
+		WithTx(tx *gorm.DB) IRepo
 	}
 
 	repo struct {
-		db gorm.DB
+		db *gorm.DB
 	}
 )
 
-func NewRepo(db gorm.DB) IRepo {
+func NewRepo(db *gorm.DB) IRepo {
 	return &repo{db: db}
 }
 
-func (r *repo) Create(order order.OrderItem) error {
-	return r.db.Create(order).Error
+func (r *repo) WithTx(tx *gorm.DB) IRepo {
+	if tx == nil {
+		return r
+	}
+	return &repo{db: tx}
+}
+
+func (r *repo) FindByID(id string) (orderModel order.Order, err error) {
+	return orderModel, r.db.Where("id = ?", id).First(&orderModel).Error
+}
+
+func (r *repo) FindItemsByOrderID(orderID string) ([]order.OrderItem, error) {
+	var items []order.OrderItem
+	err := r.db.Where("order_id = ?", orderID).Find(&items).Error
+	return items, err
+}
+
+func (r *repo) Update(orderModel order.Order) error {
+	return r.db.Save(&orderModel).Error
+}
+
+func (r *repo) UpdateStatus(id, status string) error {
+	return r.db.Model(&order.Order{}).Where("id = ?", id).Update("status", status).Error
+}
+
+func (r *repo) UpdatePaymentInfo(id string, values map[string]interface{}) error {
+	return r.db.Model(&order.Order{}).Where("id = ?", id).Updates(values).Error
+}
+
+func (r *repo) FindExpiredPending(now time.Time) ([]order.Order, error) {
+	var orders []order.Order
+	err := r.db.
+		Where("status = ? AND expired_at IS NOT NULL AND expired_at < ?", "PENDING", now).
+		Find(&orders).Error
+	return orders, err
 }

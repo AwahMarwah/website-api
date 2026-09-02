@@ -9,6 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Checkout
+// @Description Membuat order baru dan menginisiasi pembayaran via Midtrans Snap
+// @Tags 4. Order
+// @Accept json
+// @Produce json
+// @Param req body order.CheckoutRequest true "Checkout Request"
+// @Success 200 {object} order.CheckoutResponse "Order berhasil dibuat"
+// @Router /order [post]
 func (c *controller) Checkout(ctx *gin.Context) {
 	var reqBody order.CheckoutRequest
 	if err := ctx.ShouldBind(&reqBody); err != nil {
@@ -19,12 +27,14 @@ func (c *controller) Checkout(ctx *gin.Context) {
 	userInfo, err := middleware.GetUserFromContext(ctx)
 	if err != nil {
 		response.Error(ctx, http.StatusUnauthorized, err.Error())
+		return
 	}
 
 	reqBody.UserID = userInfo.UserID
-	if err := c.orderService.Checkout(&reqBody); err != nil {
-		response.Error(ctx, http.StatusInternalServerError, err.Error())
+	resData, statusCode, err := c.orderService.Checkout(&reqBody)
+	if err != nil {
+		response.Error(ctx, statusCode, err.Error())
 		return
 	}
-	response.Success(ctx, http.StatusOK, "", nil)
+	response.Success(ctx, statusCode, "", resData)
 }

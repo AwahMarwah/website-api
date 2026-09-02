@@ -95,6 +95,105 @@ definitions:
             type: integer
         type: object
     type: object
+  midtrans.NotificationPayload:
+    properties:
+      currency:
+        type: string
+      expiry_time:
+        type: string
+      fraud_status:
+        type: string
+      gross_amount:
+        type: string
+      merchant_id:
+        type: string
+      order_id:
+        type: string
+      payment_code:
+        type: string
+      payment_type:
+        type: string
+      settlement_time:
+        type: string
+      signature_key:
+        type: string
+      status_code:
+        type: string
+      status_message:
+        type: string
+      store:
+        type: string
+      transaction_id:
+        type: string
+      transaction_status:
+        type: string
+      transaction_time:
+        type: string
+      va_numbers:
+        items:
+          $ref: '#/definitions/midtrans.VaNumber'
+        type: array
+    type: object
+  midtrans.VaNumber:
+    properties:
+      bank:
+        type: string
+      va_number:
+        type: string
+    type: object
+  order.CheckoutItem:
+    properties:
+      qty:
+        type: integer
+      variant_id:
+        type: string
+    type: object
+  order.CheckoutRequest:
+    properties:
+      address_id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/order.CheckoutItem'
+        type: array
+      payment_method:
+        type: string
+      shipping_fee:
+        type: number
+      user_id:
+        type: string
+    required:
+    - address_id
+    - payment_method
+    - shipping_fee
+    type: object
+  order.CheckoutResponse:
+    properties:
+      expires_at:
+        type: string
+      order_id:
+        type: string
+      payment_token:
+        type: string
+      payment_url:
+        type: string
+    type: object
+  order.NotificationResponse:
+    properties:
+      order_id:
+        type: string
+      processed:
+        type: boolean
+      status:
+        type: string
+    type: object
+  order.PaymentLinkResponse:
+    properties:
+      order_id:
+        type: string
+      url:
+        type: string
+    type: object
 host: localhost:8085
 info:
   contact: {}
@@ -265,6 +364,73 @@ paths:
       summary: Get List Province
       tags:
       - 3. Master
+  /order:
+    post:
+      consumes:
+      - application/json
+      description: Membuat order baru dan menginisiasi pembayaran via Midtrans Snap
+      parameters:
+      - description: Checkout Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/order.CheckoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order berhasil dibuat
+          schema:
+            $ref: '#/definitions/order.CheckoutResponse'
+      summary: Checkout
+      tags:
+      - 4. Order
+  /order/{id}/payment-link:
+    post:
+      consumes:
+      - application/json
+      description: Membuat payment link Midtrans untuk order yang masih PENDING sehingga
+        bisa dibagikan
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment link berhasil dibuat
+          schema:
+            $ref: '#/definitions/order.PaymentLinkResponse'
+      summary: Create Payment Link
+      tags:
+      - 4. Order
+  /order/notification:
+    post:
+      consumes:
+      - application/json
+      description: Merespons notifikasi webhook dari Midtrans (public endpoint, tanpa
+        auth)
+      parameters:
+      - description: Midtrans Notification Payload
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/midtrans.NotificationPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notifikasi diproses
+          schema:
+            $ref: '#/definitions/order.NotificationResponse'
+      summary: Handle Payment Notification
+      tags:
+      - 4. Order
 swagger: "2.0"
 tags:
 - name: 1. Health Check

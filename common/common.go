@@ -34,4 +34,19 @@ const (
 	// User
 	UserNotFound     = "user not found"
 	UserHasSignedOut = "user has signed out"
+
+	// Order status
+	OrderStatusPending    = "PENDING"
+	OrderStatusPaid       = "PAID"
+	OrderStatusProcessing = "PROCESSING"
+	OrderStatusShipped    = "SHIPPED"
+	OrderStatusCompleted  = "COMPLETED"
+	OrderStatusCancelled  = "CANCELLED"
+	OrderStatusExpired    = "EXPIRED"
+
+	// Payment
+	PaymentMethodMidtrans = "midtrans"
+	PaymentSuccessMessage = "pembayaran berhasil"
+	PaymentExpiredMessage = "pembayaran kedaluwarsa"
+	PaymentFailedMessage  = "pembayaran gagal"
 )

@@ -11,6 +11,8 @@ type Order struct {
 	Status        string
 	PaymentMethod string
 	PaymentToken  string
+	PaymentURL    *string
+	ExpiredAt     *time.Time
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
