@@ -1,32 +1,122 @@
+basePath: /
+definitions:
+  master.ListCityResponse:
+    properties:
+      code:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      province_id:
+        type: string
+    type: object
+  master.ListDistrictResponse:
+    properties:
+      city_id:
+        type: string
+      code:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  master.ListProvinceResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  master.SwaggerCityPagination:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/master.ListCityResponse'
+        type: array
+      message:
+        example: OK
+        type: string
+      page:
+        properties:
+          current:
+            example: 1
+            type: integer
+          size:
+            example: 10
+            type: integer
+          total:
+            example: 37
+            type: integer
+        type: object
+    type: object
+  master.SwaggerDistrictPagination:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/master.ListDistrictResponse'
+        type: array
+      message:
+        example: OK
+        type: string
+      page:
+        properties:
+          current:
+            example: 1
+            type: integer
+          size:
+            example: 10
+            type: integer
+          total:
+            example: 37
+            type: integer
+        type: object
+    type: object
+  master.SwaggerProvincePagination:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/master.ListProvinceResponse'
+        type: array
+      message:
+        example: OK
+        type: string
+      page:
+        properties:
+          current:
+            example: 1
+            type: integer
+          size:
+            example: 10
+            type: integer
+          total:
+            example: 37
+            type: integer
+        type: object
+    type: object
+host: localhost:8085
 info:
   contact: {}
+  description: Api Documentation for Website
+  title: Website Api
+  version: "1.0"
 paths:
-  /health-check:
+  /content-page/faqs:
     get:
       consumes:
       - application/json
-      description: Check application health status
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Application is healthy
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Health Check
-      tags:
-      - Health Check
-  /master/province:
-    get:
-      consumes:
-      - application/json
-      description: Mengambil master list province
+      description: Retrieve list information of Faqs
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:
@@ -35,7 +125,148 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      summary: Get Faqs
+      tags:
+      - 2. Content Page
+  /content-page/pages/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve detailed information of a content page using its slug
+      parameters:
+      - description: Content Page Slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"data": content_page.DetailResponse, "message": ""}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"data": null, "message": "Bad Request"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: '{"data": null, "message": "Internal Server Error"}'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Content Page by Slug
+      tags:
+      - 2. Content Page
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check application health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"data": null, "message": "successfully checked"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: '{"data": null, "message": "internal server error"}'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Health Check
+      tags:
+      - 1. Health Check
+  /master/cities:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil master list cities
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: province_id
+        type: string
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data city
+          schema:
+            $ref: '#/definitions/master.SwaggerCityPagination'
+      summary: Get List Cities
+      tags:
+      - 3. Master
+  /master/district:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil master list district
+      parameters:
+      - in: query
+        name: city_id
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data district
+          schema:
+            $ref: '#/definitions/master.SwaggerDistrictPagination'
+      summary: Get List District
+      tags:
+      - 3. Master
+  /master/provincies:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil master list province
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data provinsi
+          schema:
+            $ref: '#/definitions/master.SwaggerProvincePagination'
       summary: Get List Province
       tags:
-      - province
+      - 3. Master
 swagger: "2.0"
+tags:
+- name: 1. Health Check
+- name: 2. Content Page
+- name: 3. Master

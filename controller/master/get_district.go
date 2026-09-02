@@ -9,6 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetDistrict	godoc
+// @Summary		Get List District
+// @Description	Mengambil master list district
+// @Tags		3. Master
+// @Param		req query master.GetListDistrictsRequest false "Query Parameters"
+// @Accept		json
+// @Produce		json
+// @Success		200 {object} master.SwaggerDistrictPagination "Berhasil mengambil data district"
+// @Router		/master/district [get]
 func (c *controller) GetDistrict(ctx *gin.Context) {
 	var reqQuery master.GetListDistrictsRequest
 	if err := ctx.ShouldBindQuery(&reqQuery); err != nil {

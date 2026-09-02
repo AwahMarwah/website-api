@@ -12,11 +12,12 @@ import (
 // GetProvince godoc
 // @Summary		Get List Province
 // @Description	Mengambil master list province
-// @Tags		province
+// @Tags		3. Master
+// @Param		req query masterModel.GetListProvinceRequest false "Query Parameters"
 // @Accept		json
 // @Produce		json
-// @Success		200 {object}  map[string]interface{}
-// @Router		/master/province [get]
+// @Success    200 {object} masterModel.SwaggerProvincePagination "Berhasil mengambil data provinsi"
+// @Router		/master/provincies [get]
 func (c *controller) GetProvince(ctx *gin.Context) {
 	var reqQuery masterModel.GetListProvinceRequest
 	if err := ctx.ShouldBindQuery(&reqQuery); err != nil {

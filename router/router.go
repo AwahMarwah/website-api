@@ -5,8 +5,8 @@ import (
 	"website-api/controller/brand"
 	"website-api/controller/cart"
 	"website-api/controller/category"
-	content_page "website-api/controller/content-page"
-	health_check "website-api/controller/health-check"
+	contentPage "website-api/controller/content-page"
+	healthCheck "website-api/controller/health-check"
 	"website-api/controller/master"
 	"website-api/controller/order"
 	"website-api/controller/product"
@@ -20,9 +20,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 
+	_ "website-api/docs"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "website-api/docs"
 )
 
 func Run(db database.DB, redis *redis.Client) (err error) {
@@ -33,7 +34,7 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// PUBLIC API
-	healthController := health_check.NewController(db.SqlDb)
+	healthController := healthCheck.NewController(db.SqlDb)
 	router.GET("/health", healthController.Check)
 
 	authController := auth.NewController(db.GormDb)
@@ -44,12 +45,12 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 		authGroup.POST("/resend-verification", authController.ResendVerification)
 	}
 
-	contentPageController := content_page.NewController(db.GormDb, redis)
+	contentPageController := contentPage.NewController(db.GormDb, redis)
 	contentPageGroup := router.Group("/content-page")
 	{
 		// Public
 		contentPageGroup.GET("/pages/:slug", contentPageController.GetBySlug)
-		contentPageGroup.GET("faqs", contentPageController.GetFaq)
+		contentPageGroup.GET("/faqs", contentPageController.GetFaq)
 	}
 
 	userController := user.NewController(db.GormDb)

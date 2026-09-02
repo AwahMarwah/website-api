@@ -9,6 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetCities	godoc
+// @Summary		Get List Cities
+// @Description	Mengambil master list cities
+// @Tags		3. Master
+// @Param		req query master.GetListCitiesRequest false "Query Parameters"
+// @Accept		json
+// @Produce		json
+// @Success		200 {object} master.SwaggerCityPagination "Berhasil mengambil data city"
+// @Router		/master/cities [get]
 func (c *controller) GetCities(ctx *gin.Context) {
 	var reqQuery master.GetListCitiesRequest
 	if err := ctx.ShouldBindQuery(&reqQuery); err != nil {

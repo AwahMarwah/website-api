@@ -6,6 +6,7 @@ import (
 	"website-api/database"
 	roleRepo "website-api/repository/role"
 	userRepo "website-api/repository/user"
+	userAddressRepo "website-api/repository/user_address"
 	"website-api/service/user"
 )
 
@@ -19,7 +20,7 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
-	userService := user.NewService(userRepo.NewRepo(db.GormDb), roleRepo.NewRepo(db.GormDb))
+	userService := user.NewService(userRepo.NewRepo(db.GormDb), roleRepo.NewRepo(db.GormDb), userAddressRepo.NewRepo(db.GormDb))
 	if err = userService.Seed(); err != nil {
 		log.Fatal(err)
 	}

@@ -9,6 +9,6 @@ type (
 
 	DeleteCartRequest struct {
 		UserID     string   `json:"user_id"`
-		VariantIDs []string `binding:"required,gt=0"json:"variant_ids"`
+		VariantIDs []string `binding:"required,gt=0" json:"variant_ids"`
 	}
 )

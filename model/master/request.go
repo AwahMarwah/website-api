@@ -5,7 +5,7 @@ type (
 	GetListProvinceRequest struct {
 		Page   int    `form:"page"`
 		Limit  int    `form:"limit"`
-		Offset int    `form:"offset"`
+		Offset int    `form:"offset" swaggerignore:"true"`
 		Search string `form:"search"`
 	}
 
@@ -13,7 +13,7 @@ type (
 	GetListCitiesRequest struct {
 		Page       int    `form:"page"`
 		Limit      int    `form:"limit"`
-		Offset     int    `form:"offset"`
+		Offset     int    `form:"offset" swaggerignore:"true"`
 		Search     string `form:"search"`
 		ProvinceID string `form:"province_id"`
 	}

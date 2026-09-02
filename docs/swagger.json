@@ -1,12 +1,17 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Api Documentation for Website",
+        "title": "Website Api",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8085",
+    "basePath": "/",
     "paths": {
-        "/health-check": {
+        "/content-page/faqs": {
             "get": {
-                "description": "Check application health status",
+                "description": "Retrieve list information of Faqs",
                 "consumes": [
                     "application/json"
                 ],
@@ -14,40 +19,26 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Health Check"
+                    "2. Content Page"
                 ],
-                "summary": "Health Check",
-                "responses": {
-                    "200": {
-                        "description": "Application is healthy",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
+                "summary": "Get Faqs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
                     },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
                     }
-                }
-            }
-        },
-        "/master/province": {
-            "get": {
-                "description": "Mengambil master list province",
-                "consumes": [
-                    "application/json"
                 ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "province"
-                ],
-                "summary": "Get List Province",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -58,6 +49,373 @@
                     }
                 }
             }
+        },
+        "/content-page/pages/{slug}": {
+            "get": {
+                "description": "Retrieve detailed information of a content page using its slug",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "2. Content Page"
+                ],
+                "summary": "Get Content Page by Slug",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Content Page Slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"data\": content_page.DetailResponse, \"message\": \"\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "{\"data\": null, \"message\": \"Bad Request\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "{\"data\": null, \"message\": \"Internal Server Error\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Check application health status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "1. Health Check"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "{\"data\": null, \"message\": \"successfully checked\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "{\"data\": null, \"message\": \"internal server error\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/master/cities": {
+            "get": {
+                "description": "Mengambil master list cities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "3. Master"
+                ],
+                "summary": "Get List Cities",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "province_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data city",
+                        "schema": {
+                            "$ref": "#/definitions/master.SwaggerCityPagination"
+                        }
+                    }
+                }
+            }
+        },
+        "/master/district": {
+            "get": {
+                "description": "Mengambil master list district",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "3. Master"
+                ],
+                "summary": "Get List District",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "city_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data district",
+                        "schema": {
+                            "$ref": "#/definitions/master.SwaggerDistrictPagination"
+                        }
+                    }
+                }
+            }
+        },
+        "/master/provincies": {
+            "get": {
+                "description": "Mengambil master list province",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "3. Master"
+                ],
+                "summary": "Get List Province",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data provinsi",
+                        "schema": {
+                            "$ref": "#/definitions/master.SwaggerProvincePagination"
+                        }
+                    }
+                }
+            }
         }
-    }
+    },
+    "definitions": {
+        "master.ListCityResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "province_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "master.ListDistrictResponse": {
+            "type": "object",
+            "properties": {
+                "city_id": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "master.ListProvinceResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "master.SwaggerCityPagination": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/master.ListCityResponse"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "page": {
+                    "type": "object",
+                    "properties": {
+                        "current": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "size": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "total": {
+                            "type": "integer",
+                            "example": 37
+                        }
+                    }
+                }
+            }
+        },
+        "master.SwaggerDistrictPagination": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/master.ListDistrictResponse"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "page": {
+                    "type": "object",
+                    "properties": {
+                        "current": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "size": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "total": {
+                            "type": "integer",
+                            "example": 37
+                        }
+                    }
+                }
+            }
+        },
+        "master.SwaggerProvincePagination": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/master.ListProvinceResponse"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "page": {
+                    "type": "object",
+                    "properties": {
+                        "current": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "size": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "total": {
+                            "type": "integer",
+                            "example": 37
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "1. Health Check"
+        },
+        {
+            "name": "2. Content Page"
+        },
+        {
+            "name": "3. Master"
+        }
+    ]
 }

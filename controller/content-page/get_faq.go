@@ -9,6 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Get Faq
+//
+// @Summary			Get Faqs
+// @Description		Retrieve list information of Faqs
+// @Tags			2. Content Page
+// @Param			req query modelContentPage.FaqListReqQuery false "Query Parameters"
+// @Accept			json
+// @Produce			json
+// @Success			200 {object} map[string]interface{}
+// @Router			/content-page/faqs [get]
 func (c *controller) GetFaq(ctx *gin.Context) {
 	var reqQuery modelContentPage.FaqListReqQuery
 	if err := ctx.ShouldBindQuery(&reqQuery); err != nil {
