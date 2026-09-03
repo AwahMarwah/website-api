@@ -1,11 +1,20 @@
 package encrypt
 
 import (
+	"os"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func jwtSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "simple_ecommerce"
+	}
+	return []byte(secret)
+}
 
 func HashAndSalt(pwd []byte) (string, error) {
 	// Use GenerateFromPassword to hash & salt pwd.
@@ -36,13 +45,13 @@ func GenerateFromPassword(password *string) (err error) {
 
 func NewTokenWithClaims(claims jwt.Claims) (token string, err error) {
 	claimsToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return claimsToken.SignedString([]byte("simple_ecommerce"))
+	return claimsToken.SignedString(jwtSecret())
 }
 
 func Parse(token string) (tokenRaw string, claims jwt.MapClaims, err error) {
 	tokenString := strings.ReplaceAll(token, "Bearer ", "")
 	jwtToken, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		return []byte("simple_ecommerce"), nil
+		return jwtSecret(), nil
 	})
 	if err != nil {
 		return

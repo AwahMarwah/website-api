@@ -10,6 +10,9 @@ import (
 type (
 	IRepo interface {
 		FindByID(id string) (order.Order, error)
+		FindByIDWithItems(id string) (order.Order, []order.OrderItem, error)
+		FindByUserID(userID string, status string, limit, offset int) ([]order.Order, int64, error)
+		FindAll(status string, limit, offset int) ([]order.Order, int64, error)
 		FindItemsByOrderID(orderID string) ([]order.OrderItem, error)
 		Update(order.Order) error
 		UpdateStatus(id, status string) error

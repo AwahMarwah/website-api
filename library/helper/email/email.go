@@ -16,7 +16,7 @@ func SendVerificationEmail(user *userModel.User, verificationToken string) error
 		return fmt.Errorf("APP_BASE_URL environment variable is not set")
 	}
 
-	verifyLink := fmt.Sprintf("%s/user/verify-email?token=%s", appBaseURL, verificationToken)
+	verifyLink := fmt.Sprintf("%s/auth/verify-email?token=%s", appBaseURL, verificationToken)
 
 	body, err := template.RenderVerificationEmail(user.Name, verifyLink)
 	if err != nil {
@@ -43,7 +43,7 @@ func SendResetPasswordByEmail(user *userModel.User, token string) error {
 		return errors.New("APP_BASE_URL environment variable is not set")
 	}
 
-	resetLink := fmt.Sprintf("%s/reset-password/%s", appBaseURL, token)
+	resetLink := fmt.Sprintf("%s/auth/reset-password/%s", appBaseURL, token)
 
 	body, err := template.RenderResetPasswordEmail(user.Name, resetLink)
 	if err != nil {

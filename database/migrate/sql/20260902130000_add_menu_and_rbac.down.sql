@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS role_menus;
+DROP TABLE IF EXISTS menus;
+ALTER TABLE permissions DROP COLUMN IF EXISTS menu_id;

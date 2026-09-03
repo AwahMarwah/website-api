@@ -18,6 +18,9 @@ import (
 // @tag.name 1. Health Check
 // @tag.name 2. Content Page
 // @tag.name 3. Master
+// @tag.name 4. Order
+// @tag.name 5. Product
+// @tag.name 6. Menu & RBAC
 func main() {
 	db, err := database.Open()
 	if err != nil {

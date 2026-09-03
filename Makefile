@@ -13,6 +13,9 @@ run_db_seed_role:
 run_db_seed_content_page:
 	go run database/migrate/seeding/content-page/content_page.go
 
+run_db_seed_menu:
+	go run database/migrate/seeding/menu/menu.go
+
 
 # Jalankan test dengan environment yang sudah disetup
 go test -v ./service/user/

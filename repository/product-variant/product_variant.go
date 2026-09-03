@@ -9,6 +9,7 @@ import (
 type (
 	IRepo interface {
 		FindByID(id string) (productVariant product_variant.ProductVariant, err error)
+		FindByProductID(productID string) (productVariants []product_variant.ProductVariant, err error)
 		Update(productVariant product_variant.ProductVariant) error
 		WithTx(tx *gorm.DB) IRepo
 	}

@@ -12,6 +12,7 @@ type Permission struct {
 	Name        string
 	DisplayName string
 	Description string
+	MenuId      *string
 	CreatedAt   time.Time
 	CreatedBy   string
 	UpdatedAt   *time.Time

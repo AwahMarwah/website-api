@@ -15,6 +15,34 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/orders": {
+            "get": {
+                "description": "Mengambil semua order (khusus admin)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "List Orders (Admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter status order",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar order",
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/content-page/faqs": {
             "get": {
                 "description": "Retrieve list information of Faqs",
@@ -270,6 +298,24 @@ const docTemplate = `{
             }
         },
         "/order": {
+            "get": {
+                "description": "Mengambil daftar order milik user yang login",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "List Orders (User)",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar order",
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Membuat order baru dan menginisiasi pembayaran via Midtrans Snap",
                 "consumes": [
@@ -337,6 +383,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/{id}": {
+            "get": {
+                "description": "Mengambil detail order beserta item (hanya pemilik order atau admin)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "Get Order Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil detail order",
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/order/{id}/payment-link": {
             "post": {
                 "description": "Membuat payment link Midtrans untuk order yang masih PENDING sehingga bisa dibagikan",
@@ -364,6 +439,38 @@ const docTemplate = `{
                         "description": "Payment link berhasil dibuat",
                         "schema": {
                             "$ref": "#/definitions/order.PaymentLinkResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/{id}": {
+            "get": {
+                "description": "Mengambil detail produk beserta variannya",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get Product Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil detail produk",
+                        "schema": {
+                            "$ref": "#/definitions/product.ProductDetailResponse"
                         }
                     }
                 }
@@ -652,6 +759,64 @@ const docTemplate = `{
                 }
             }
         },
+        "order.OrderItemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_variant_id": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
+                },
+                "subtotal": {
+                    "type": "number"
+                }
+            }
+        },
+        "order.OrderResponse": {
+            "type": "object",
+            "properties": {
+                "address_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderItemResponse"
+                    }
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "payment_url": {
+                    "type": "string"
+                },
+                "shipping_fee": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_amount": {
+                    "type": "number"
+                }
+            }
+        },
         "order.PaymentLinkResponse": {
             "type": "object",
             "properties": {
@@ -660,6 +825,79 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "product.ProductDetailResponse": {
+            "type": "object",
+            "properties": {
+                "base_price": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "string"
+                },
+                "brand_name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_in_stock": {
+                    "type": "integer"
+                },
+                "max_price": {
+                    "type": "number"
+                },
+                "min_price": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "total_review": {
+                    "type": "integer"
+                },
+                "variants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product.VariantResponse"
+                    }
+                }
+            }
+        },
+        "product.VariantResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "variant_name": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         }
@@ -673,6 +911,15 @@ const docTemplate = `{
         },
         {
             "name": "3. Master"
+        },
+        {
+            "name": "4. Order"
+        },
+        {
+            "name": "5. Product"
+        },
+        {
+            "name": "6. Menu \u0026 RBAC"
         }
     ]
 }`

@@ -19,9 +19,12 @@ type (
 
 	IService interface {
 		Checkout(req *order.CheckoutRequest) (order.CheckoutResponse, int, error)
-		CreatePaymentLink(orderID string) (order.PaymentLinkResponse, int, error)
+		CreatePaymentLink(orderID, userID, roleName string) (order.PaymentLinkResponse, int, error)
 		HandleNotification(payload midtrans.NotificationPayload) (order.NotificationResponse, int, error)
 		CancelExpiredOrders() (int, error)
+		List(req *order.ListOrderReqQuery) (resData []order.OrderResponse, count int64, statusCode int, err error)
+		Detail(id, userID, roleName string) (resData order.OrderResponse, statusCode int, err error)
+		ListAdmin(req *order.ListOrderReqQuery) (resData []order.OrderResponse, count int64, statusCode int, err error)
 	}
 
 	service struct {

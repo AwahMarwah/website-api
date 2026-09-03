@@ -8,7 +8,9 @@ import (
 	contentPage "website-api/controller/content-page"
 	healthCheck "website-api/controller/health-check"
 	"website-api/controller/master"
+	menuController "website-api/controller/menu"
 	"website-api/controller/order"
+	permissionController "website-api/controller/permission"
 	"website-api/controller/product"
 	"website-api/controller/role"
 	"website-api/controller/user"
@@ -64,7 +66,7 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 
 		// PRIVATE
 		userGroup.DELETE("/sign-out", middleware.AuthMiddleware(db.GormDb), userController.SignOut)
-		userGroup.GET("", middleware.AuthMiddleware(db.GormDb), userController.List)
+		userGroup.GET("", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"), userController.List)
 		userGroup.PUT("/:id", middleware.AuthMiddleware(db.GormDb), userController.Update)
 		userGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), userController.Detail)
 	}
@@ -82,13 +84,13 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 
 	// PRIVATE
 	roleController := role.NewController(db.GormDb)
-	roleGroup := router.Group("/role")
+	roleGroup := router.Group("/role", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
 	{
-		roleGroup.GET("", middleware.AuthMiddleware(db.GormDb), roleController.Find)
-		roleGroup.POST("", middleware.AuthMiddleware(db.GormDb), roleController.Create)
-		roleGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), roleController.Detail)
-		roleGroup.PUT("/:id", middleware.AuthMiddleware(db.GormDb), roleController.Update)
-		roleGroup.DELETE("/:id", middleware.AuthMiddleware(db.GormDb), roleController.Delete)
+		roleGroup.GET("", roleController.Find)
+		roleGroup.POST("", roleController.Create)
+		roleGroup.GET("/:id", roleController.Detail)
+		roleGroup.PUT("/:id", roleController.Update)
+		roleGroup.DELETE("/:id", roleController.Delete)
 	}
 
 	productController := product.NewController(db.GormDb, redis)
@@ -96,6 +98,7 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 	{
 		// PUBLIC
 		productGroup.GET("", productController.GetProduct)
+		productGroup.GET("/:id", productController.GetProductDetail)
 	}
 
 	brandController := brand.NewController(db.GormDb)
@@ -111,7 +114,6 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 	{
 		// PUBLIC
 		categoryGroup.GET("", categoryController.GetCategory)
-		categoryGroup.GET(":slug")
 	}
 
 	cartController := cart.NewController(db.GormDb)
@@ -126,10 +128,43 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 	orderGroup := router.Group("/order")
 	{
 		orderGroup.POST("", middleware.AuthMiddleware(db.GormDb), orderController.Checkout)
+		orderGroup.GET("", middleware.AuthMiddleware(db.GormDb), orderController.List)
+		orderGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), orderController.Detail)
 		orderGroup.POST("/:id/payment-link", middleware.AuthMiddleware(db.GormDb), orderController.CreatePaymentLink)
 		// PUBLIC - webhook dari Midtrans (tanpa JWT)
 		orderGroup.POST("/notification", orderController.HandleNotification)
 	}
+
+	// Admin orders (perlu role admin/super_admin - di-guard di Fase 2 via Permission)
+	adminOrderController := order.NewController(db.GormDb)
+	adminOrderGroup := router.Group("/admin/orders")
+	{
+		adminOrderGroup.GET("", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"), adminOrderController.ListAdmin)
+	}
+
+	// MENU (RBAC) - hanya super_admin/admin
+	menuCtl := menuController.NewController(db.GormDb)
+	menuGroup := router.Group("/menu", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
+	{
+		menuGroup.GET("", menuCtl.List)
+		menuGroup.GET("/tree", menuCtl.Tree)
+		menuGroup.POST("", menuCtl.Create)
+		menuGroup.PUT("/:id", menuCtl.Update)
+		menuGroup.DELETE("/:id", menuCtl.Delete)
+	}
+	// Menu untuk user (navigasi, auth saja)
+	router.GET("/menu/my", middleware.AuthMiddleware(db.GormDb), menuCtl.GetMyMenus)
+
+	// Role menu assignment - hanya super_admin/admin
+	roleMenuGroup := router.Group("/role", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
+	{
+		roleMenuGroup.GET("/:id/menus", menuCtl.GetRoleMenus)
+		roleMenuGroup.PUT("/:id/menus", menuCtl.AssignMenus)
+	}
+
+	// Permissions list - hanya super_admin/admin
+	permCtl := permissionController.NewController(db.GormDb)
+	router.GET("/permission", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"), permCtl.List)
 
 	masterController := master.NewController(db.GormDb)
 	masterGroup := router.Group("/master")

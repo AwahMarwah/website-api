@@ -17,4 +17,13 @@ type (
 	ReqPath struct {
 		Id string `uri:"id" binding:"required"`
 	}
+
+	ListOrderReqQuery struct {
+		Page     int    `form:"page"`
+		Limit    int    `form:"limit"`
+		Offset   int    `form:"offset"`
+		Status   string `form:"status"`
+		UserID   string `json:"-"`
+		IsAdmin  bool   `json:"-"`
+	}
 )

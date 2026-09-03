@@ -13,7 +13,7 @@ import (
 )
 
 // CreatePaymentLink membuat payment link Midtrans untuk order yang masih PENDING.
-func (s *service) CreatePaymentLink(orderID string) (order.PaymentLinkResponse, int, error) {
+func (s *service) CreatePaymentLink(orderID, userID, roleName string) (order.PaymentLinkResponse, int, error) {
 	var resData order.PaymentLinkResponse
 
 	existingOrder, err := s.orderRepo.FindByID(orderID)
@@ -22,6 +22,11 @@ func (s *service) CreatePaymentLink(orderID string) (order.PaymentLinkResponse, 
 			return resData, http.StatusNotFound, fmt.Errorf("order not found")
 		}
 		return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil order: %w", err)
+	}
+
+	// Ownership check (IDOR) - hanya pemilik order atau super_admin/admin
+	if existingOrder.UserID != userID && roleName != "super_admin" && roleName != "admin" {
+		return resData, http.StatusForbidden, fmt.Errorf("forbidden")
 	}
 
 	if existingOrder.Status != "PENDING" {

@@ -3,6 +3,7 @@ package order
 import (
 	"net/http"
 	"website-api/library/response"
+	"website-api/middleware"
 	"website-api/model/order"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,13 @@ func (c *controller) CreatePaymentLink(ctx *gin.Context) {
 		return
 	}
 
-	resData, statusCode, err := c.orderService.CreatePaymentLink(reqPath.Id)
+	userInfo, err := middleware.GetUserFromContext(ctx)
+	if err != nil {
+		response.Error(ctx, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	resData, statusCode, err := c.orderService.CreatePaymentLink(reqPath.Id, userInfo.UserID, userInfo.Role)
 	if err != nil {
 		response.Error(ctx, statusCode, err.Error())
 		return

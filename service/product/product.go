@@ -4,22 +4,26 @@ import (
 	"website-api/cache"
 	productModel "website-api/model/product"
 	"website-api/repository/product"
+	product_variant "website-api/repository/product-variant"
 )
 
 type (
 	IService interface {
 		GetProduct(reqQuery *productModel.GetListProductReqQuerry) (resData []productModel.ListProductResponse, count int64, err error)
+		GetProductDetail(id string) (resData productModel.ProductDetailResponse, err error)
 	}
 
 	service struct {
-		productRepo product.IRepo
-		cache       cache.Cache
+		productRepo       product.IRepo
+		productVariantRepo product_variant.IRepo
+		cache             cache.Cache
 	}
 )
 
-func NewService(productRepo product.IRepo, redis cache.Cache) IService {
+func NewService(productRepo product.IRepo, productVariantRepo product_variant.IRepo, redis cache.Cache) IService {
 	return &service{
-		productRepo: productRepo,
-		cache:       redis,
+		productRepo:       productRepo,
+		productVariantRepo: productVariantRepo,
+		cache:             redis,
 	}
 }
