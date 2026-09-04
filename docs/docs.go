@@ -297,6 +297,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/master/subdistricts": {
+            "get": {
+                "description": "Mengambil master list subdistricts/kelurahan berdasarkan district",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "3. Master"
+                ],
+                "summary": "Get List Subdistricts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "district_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data subdistrict",
+                        "schema": {
+                            "$ref": "#/definitions/master.SwaggerSubdistrictPagination"
+                        }
+                    }
+                }
+            }
+        },
         "/order": {
             "get": {
                 "description": "Mengambil daftar order milik user yang login",
@@ -481,9 +531,6 @@ const docTemplate = `{
         "master.ListCityResponse": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
@@ -501,9 +548,6 @@ const docTemplate = `{
                 "city_id": {
                     "type": "string"
                 },
-                "code": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
@@ -515,6 +559,20 @@ const docTemplate = `{
         "master.ListProvinceResponse": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "master.ListSubdistrictResponse": {
+            "type": "object",
+            "properties": {
+                "district_id": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -594,6 +652,38 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/master.ListProvinceResponse"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "page": {
+                    "type": "object",
+                    "properties": {
+                        "current": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "size": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "total": {
+                            "type": "integer",
+                            "example": 37
+                        }
+                    }
+                }
+            }
+        },
+        "master.SwaggerSubdistrictPagination": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/master.ListSubdistrictResponse"
                     }
                 },
                 "message": {

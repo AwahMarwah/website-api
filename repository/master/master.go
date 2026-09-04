@@ -19,6 +19,7 @@ type (
 		FindProvince(reqQuery *master.GetListProvinceRequest) (resData []master.ListProvinceResponse, count int64, err error)
 		FindCities(reqQuery *master.GetListCitiesRequest) (resData []master.City, count int64, err error)
 		FindDistrict(reqQuery *master.GetListDistrictsRequest) (resData []master.ListDistrictResponse, count int64, err error)
+		FindSubdistrict(reqQuery *master.GetListSubdistrictsRequest) (resData []master.ListSubdistrictResponse, count int64, err error)
 	}
 
 	repo struct {
@@ -63,11 +64,17 @@ func (r *repo) FindProvince(reqQuery *master.GetListProvinceRequest) (resData []
 func (r *repo) FindCities(reqQuery *master.GetListCitiesRequest) (resData []master.City, count int64, err error) {
 	resData = make([]master.City, 0)
 
-	return resData, count, r.db.Model(&master.City{}).Scopes(filter.FilterCitiesSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
+	return resData, count, r.db.Debug().Model(&master.City{}).Scopes(filter.FilterCitiesSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
 }
 
 func (r *repo) FindDistrict(reqQuery *master.GetListDistrictsRequest) (resData []master.ListDistrictResponse, count int64, err error) {
 	resData = make([]master.ListDistrictResponse, 0)
 
-	return resData, count, r.db.Debug().Model(&master.District{}).Scopes(filter.FilterCitiesSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
+	return resData, count, r.db.Debug().Model(&master.District{}).Scopes(filter.FilterDistrictSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
+}
+
+func (r *repo) FindSubdistrict(reqQuery *master.GetListSubdistrictsRequest) (resData []master.ListSubdistrictResponse, count int64, err error) {
+	resData = make([]master.ListSubdistrictResponse, 0)
+
+	return resData, count, r.db.Debug().Model(&master.Subdistrict{}).Scopes(filter.FilterSubdistrictSearch(reqQuery.Search)).Count(&count).Limit(reqQuery.Limit).Offset(reqQuery.Offset).Order("id").Find(&resData).Error
 }

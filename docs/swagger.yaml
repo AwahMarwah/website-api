@@ -2,8 +2,6 @@ basePath: /
 definitions:
   master.ListCityResponse:
     properties:
-      code:
-        type: string
       id:
         type: string
       name:
@@ -15,8 +13,6 @@ definitions:
     properties:
       city_id:
         type: string
-      code:
-        type: string
       id:
         type: string
       name:
@@ -24,6 +20,15 @@ definitions:
     type: object
   master.ListProvinceResponse:
     properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  master.ListSubdistrictResponse:
+    properties:
+      district_id:
+        type: string
       id:
         type: string
       name:
@@ -78,6 +83,28 @@ definitions:
       data:
         items:
           $ref: '#/definitions/master.ListProvinceResponse'
+        type: array
+      message:
+        example: OK
+        type: string
+      page:
+        properties:
+          current:
+            example: 1
+            type: integer
+          size:
+            example: 10
+            type: integer
+          total:
+            example: 37
+            type: integer
+        type: object
+    type: object
+  master.SwaggerSubdistrictPagination:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/master.ListSubdistrictResponse'
         type: array
       message:
         example: OK
@@ -466,6 +493,37 @@ paths:
           schema:
             $ref: '#/definitions/master.SwaggerProvincePagination'
       summary: Get List Province
+      tags:
+      - 3. Master
+  /master/subdistricts:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil master list subdistricts/kelurahan berdasarkan district
+      parameters:
+      - in: query
+        name: district_id
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data subdistrict
+          schema:
+            $ref: '#/definitions/master.SwaggerSubdistrictPagination'
+      summary: Get List Subdistricts
       tags:
       - 3. Master
   /order:

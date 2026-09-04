@@ -13,14 +13,12 @@ type (
 	City struct {
 		ID         string `json:"id"`
 		ProvinceID string `json:"province_id"`
-		Code       string `json:"code"`
 		Name       string `json:"name"`
 	}
 
 	District struct {
 		ID     string `json:"id"`
 		CityID string `json:"city_id"`
-		Code   string `json:"code"`
 		Name   string `json:"name"`
 	}
 

@@ -172,6 +172,7 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 		masterGroup.GET("/provincies", masterController.GetProvince)
 		masterGroup.GET("/cities", masterController.GetCities)
 		masterGroup.GET("/district", masterController.GetDistrict)
+		masterGroup.GET("/subdistricts", masterController.GetSubdistrict)
 	}
 
 	return router.Run()

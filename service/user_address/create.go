@@ -175,14 +175,13 @@ func (s *service) Create(reqBody *userAddressModel.CreateUserAddressRequest) err
 		UserID:        reqBody.UserID,
 		RecipientName: reqBody.RecipientName,
 		PhoneNumber:   reqBody.PhoneNumber,
-		//FullAddress:           reqBody.FullAddress,
+		FullAddress:   reqBody.FullAddress,
 		ProvinceID:    reqBody.ProvinceID,
 		CityID:        reqBody.CityID,
 		DistrictID:    reqBody.DistrictID,
 		SubdistrictID: reqBody.SubdistrictID,
 		PostalCode:    reqBody.PostalCode,
 		IsPrimary:     reqBody.IsPrimary,
-		//ShippingProvider:      "rajaongkir",
 		DestinationID: destinationID,
 	}
 

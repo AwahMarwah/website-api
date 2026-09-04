@@ -26,4 +26,13 @@ type (
 		Search string `form:"search"`
 		CityID string `form:"city_id"`
 	}
+
+	// ===== SUBDISTRICT ===== //
+	GetListSubdistrictsRequest struct {
+		Page       int    `form:"page"`
+		Limit      int    `form:"limit"`
+		Offset     int    `form:"offset"`
+		Search     string `form:"search"`
+		DistrictID string `form:"district_id"`
+	}
 )
