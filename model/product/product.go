@@ -5,6 +5,7 @@ import "time"
 type Product struct {
 	Id          string
 	BrandId     string
+	MerchantId  string
 	Sku         string
 	Name        string
 	Slug        string

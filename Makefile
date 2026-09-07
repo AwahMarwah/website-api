@@ -16,6 +16,9 @@ run_db_seed_content_page:
 run_db_seed_menu:
 	go run database/migrate/seeding/menu/menu.go
 
+run_db_seed_merchant:
+	go run database/migrate/seeding/merchant/merchant.go
+
 
 # Jalankan test dengan environment yang sudah disetup
 go test -v ./service/user/

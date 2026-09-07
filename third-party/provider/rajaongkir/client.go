@@ -11,6 +11,7 @@ import (
 type Client struct {
 	apiKey  string
 	baseURL string
+	costURL string
 	client  *http.Client
 }
 
@@ -28,12 +29,16 @@ func NewClient() *Client {
 		transport.Proxy = http.ProxyURL(proxyURL)
 	}
 
+	baseURL := strings.TrimRight(os.Getenv("RAJAONGKIR_BASE_URL"), "/")
+	costURL := os.Getenv("RAJAONGKIR_COST_URL")
+	if costURL == "" {
+		costURL = baseURL + "/calculate/domestic-cost"
+	}
+
 	return &Client{
-		apiKey: os.Getenv("RAJAONGKIR_API_KEY"),
-		baseURL: strings.TrimRight(
-			os.Getenv("RAJAONGKIR_BASE_URL"),
-			"/",
-		),
+		apiKey:  os.Getenv("RAJAONGKIR_API_KEY"),
+		baseURL: baseURL,
+		costURL: costURL,
 		client: &http.Client{
 			Timeout:   30 * time.Second,
 			Transport: transport,

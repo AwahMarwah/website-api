@@ -42,6 +42,31 @@ type (
 		Data []ShippingOption `json:"data"`
 	}
 
+	// Raw response standar RajaOngkir: {"rajaongkir":{"results":[...]}}
+	RajaOngkirCostResponse struct {
+		RajaOngkir struct {
+			Results []RawCostGroup `json:"results"`
+		} `json:"rajaongkir"`
+	}
+
+	RawCostGroup struct {
+		Code  string          `json:"code"`
+		Name  string          `json:"name"`
+		Costs []RawCostService `json:"costs"`
+	}
+
+	RawCostService struct {
+		Service     string        `json:"service"`
+		Description string        `json:"description"`
+		Cost        []RawCostItem `json:"cost"`
+	}
+
+	RawCostItem struct {
+		Value int64  `json:"value"`
+		Etd   string `json:"etd"`
+		Note  string `json:"note"`
+	}
+
 	ShippingOption struct {
 		Name        string `json:"name"`
 		Code        string `json:"code"`

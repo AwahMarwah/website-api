@@ -9,10 +9,12 @@ import (
 	healthCheck "website-api/controller/health-check"
 	"website-api/controller/master"
 	menuController "website-api/controller/menu"
+	merchantController "website-api/controller/merchant"
 	"website-api/controller/order"
 	permissionController "website-api/controller/permission"
 	"website-api/controller/product"
 	"website-api/controller/role"
+	shippingController "website-api/controller/shipping"
 	"website-api/controller/user"
 	userAddressController "website-api/controller/user_address"
 	"website-api/database"
@@ -174,6 +176,17 @@ func Run(db database.DB, redis *redis.Client) (err error) {
 		masterGroup.GET("/district", masterController.GetDistrict)
 		masterGroup.GET("/subdistricts", masterController.GetSubdistrict)
 	}
+
+	merchantCtl := merchantController.NewController(db.GormDb)
+	merchantGroup := router.Group("/merchant")
+	{
+		merchantGroup.GET("", merchantCtl.List)
+		merchantGroup.GET("/:id", merchantCtl.Detail)
+	}
+
+	// Quote ongkir - auth required (memakai address milik user)
+	shippingCtl := shippingController.NewController(db.GormDb)
+	router.POST("/shipping/cost", middleware.AuthMiddleware(db.GormDb), shippingCtl.Cost)
 
 	return router.Run()
 }

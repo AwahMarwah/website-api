@@ -24,4 +24,17 @@ type OrderItem struct {
 	Price            float64
 	Qty              int
 	Subtotal         float64
+	TotalWeightGram  int
+}
+
+type OrderMerchantShipping struct {
+	ID          string
+	OrderID     string
+	MerchantID  string
+	Courier     string
+	Service     string
+	Cost        int64
+	Etd         string
+	WeightGram  int
+	CreatedAt   time.Time
 }

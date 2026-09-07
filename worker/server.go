@@ -9,11 +9,14 @@ import (
 	"website-api/database"
 	"website-api/database/transaction"
 	orderRepo "website-api/repository/order"
+	merchantRepo "website-api/repository/merchant"
 	productRepo "website-api/repository/product"
 	product_variant "website-api/repository/product-variant"
 	userRepo "website-api/repository/user"
+	userAddressRepo "website-api/repository/user_address"
 	orderService "website-api/service/order"
 	midtransProvider "website-api/third-party/provider/midtrans"
+	rajaongkirProvider "website-api/third-party/provider/rajaongkir"
 	"website-api/task"
 
 	"github.com/hibiken/asynq"
@@ -85,8 +88,11 @@ func handleCancelExpiredOrders(ctx context.Context, t *asynq.Task) error {
 		product_variant.NewRepo(db.GormDb),
 		orderRepo.NewRepo(db.GormDb),
 		userRepo.NewRepo(db.GormDb),
+		userAddressRepo.NewRepo(db.GormDb),
+		merchantRepo.NewRepo(db.GormDb),
 		transaction.NewTransactionManager(db.GormDb),
 		midtransProvider.NewClient(),
+		rajaongkirProvider.NewClient(),
 		NewRedisClient(),
 	)
 

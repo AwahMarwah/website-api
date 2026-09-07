@@ -3,11 +3,14 @@ package order
 import (
 	"website-api/database/transaction"
 	"website-api/model/order"
+	merchantRepo "website-api/repository/merchant"
 	"website-api/repository/product"
 	product_variant "website-api/repository/product-variant"
 	orderRepo "website-api/repository/order"
 	userRepo "website-api/repository/user"
+	userAddressRepo "website-api/repository/user_address"
 	"website-api/third-party/provider/midtrans"
+	"website-api/third-party/provider/rajaongkir"
 
 	"github.com/hibiken/asynq"
 )
@@ -32,8 +35,11 @@ type (
 		productVariantRepo product_variant.IRepo
 		orderRepo          orderRepo.IRepo
 		userRepo           userRepo.IRepo
+		userAddressRepo    userAddressRepo.IRepo
+		merchantRepo       merchantRepo.IRepo
 		txManager          transaction.ITransactionManager
 		midtransProvider   midtrans.Provider
+		rajaOngkir         rajaongkir.Provider
 		queueClient        QueueClient
 	}
 )
@@ -43,8 +49,11 @@ func NewService(
 	productVariantRepo product_variant.IRepo,
 	orderRepo orderRepo.IRepo,
 	userRepo userRepo.IRepo,
+	userAddressRepo userAddressRepo.IRepo,
+	merchantRepo merchantRepo.IRepo,
 	txManager transaction.ITransactionManager,
 	midtransProvider midtrans.Provider,
+	rajaOngkir rajaongkir.Provider,
 	queueClient QueueClient,
 ) IService {
 	return &service{
@@ -52,8 +61,11 @@ func NewService(
 		productVariantRepo: productVariantRepo,
 		orderRepo:          orderRepo,
 		userRepo:           userRepo,
+		userAddressRepo:    userAddressRepo,
+		merchantRepo:       merchantRepo,
 		txManager:          txManager,
 		midtransProvider:   midtransProvider,
+		rajaOngkir:         rajaOngkir,
 		queueClient:        queueClient,
 	}
 }

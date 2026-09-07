@@ -7,6 +7,13 @@ type (
 		PaymentMethod string         `binding:"required" json:"payment_method"`
 		ShippingFee   float64        `binding:"required" json:"shipping_fee"`
 		Items         []CheckoutItem `json:"items"`
+		Shippings     []ShippingsReq `json:"shippings"`
+	}
+
+	ShippingsReq struct {
+		MerchantID string `json:"merchant_id"`
+		Courier    string `json:"courier"`
+		Service    string `json:"service"`
 	}
 
 	CheckoutItem struct {

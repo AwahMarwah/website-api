@@ -17,6 +17,7 @@ type (
 		Update(order.Order) error
 		UpdateStatus(id, status string) error
 		UpdatePaymentInfo(id string, values map[string]interface{}) error
+		CreateMerchantShipping(shipping *order.OrderMerchantShipping) error
 		FindExpiredPending(now time.Time) ([]order.Order, error)
 		WithTx(tx *gorm.DB) IRepo
 	}
@@ -57,6 +58,10 @@ func (r *repo) UpdateStatus(id, status string) error {
 
 func (r *repo) UpdatePaymentInfo(id string, values map[string]interface{}) error {
 	return r.db.Model(&order.Order{}).Where("id = ?", id).Updates(values).Error
+}
+
+func (r *repo) CreateMerchantShipping(shipping *order.OrderMerchantShipping) error {
+	return r.db.Create(shipping).Error
 }
 
 func (r *repo) FindExpiredPending(now time.Time) ([]order.Order, error) {
