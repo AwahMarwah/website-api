@@ -347,6 +347,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/merchant": {
+            "get": {
+                "description": "Mengambil daftar merchant (toko) yang aktif",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get Merchants",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar merchant",
+                        "schema": {
+                            "$ref": "#/definitions/merchant.MerchantResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/order": {
             "get": {
                 "description": "Mengambil daftar order milik user yang login",
@@ -521,6 +544,40 @@ const docTemplate = `{
                         "description": "Berhasil mengambil detail produk",
                         "schema": {
                             "$ref": "#/definitions/product.ProductDetailResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/shipping/cost": {
+            "post": {
+                "description": "Menghitung ongkir real per merchant untuk item checkout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Quote Shipping Cost",
+                "parameters": [
+                    {
+                        "description": "Quote Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/shipping.ShippingCostRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil menghitung ongkir",
+                        "schema": {
+                            "$ref": "#/definitions/shipping.MerchantShipping"
                         }
                     }
                 }
@@ -709,6 +766,32 @@ const docTemplate = `{
                 }
             }
         },
+        "merchant.MerchantResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city_id": {
+                    "type": "string"
+                },
+                "destination_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
         "midtrans.NotificationPayload": {
             "type": "object",
             "properties": {
@@ -812,6 +895,12 @@ const docTemplate = `{
                 },
                 "shipping_fee": {
                     "type": "number"
+                },
+                "shippings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.ShippingsReq"
+                    }
                 },
                 "user_id": {
                     "type": "string"
@@ -918,6 +1007,20 @@ const docTemplate = `{
                 }
             }
         },
+        "order.ShippingsReq": {
+            "type": "object",
+            "properties": {
+                "courier": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                }
+            }
+        },
         "product.ProductDetailResponse": {
             "type": "object",
             "properties": {
@@ -941,6 +1044,12 @@ const docTemplate = `{
                 },
                 "max_price": {
                     "type": "number"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "type": "string"
                 },
                 "min_price": {
                     "type": "number"
@@ -988,6 +1097,86 @@ const docTemplate = `{
                 },
                 "weight": {
                     "type": "number"
+                }
+            }
+        },
+        "shipping.MerchantShipping": {
+            "type": "object",
+            "properties": {
+                "merchant_id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/shipping.ShippingOption"
+                    }
+                },
+                "weight_gram": {
+                    "type": "integer"
+                },
+                "weight_kg": {
+                    "type": "integer"
+                }
+            }
+        },
+        "shipping.ShippingCostItem": {
+            "type": "object",
+            "required": [
+                "qty",
+                "variant_id"
+            ],
+            "properties": {
+                "qty": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "variant_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "shipping.ShippingCostRequest": {
+            "type": "object",
+            "required": [
+                "address_id",
+                "items"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "string"
+                },
+                "couriers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/shipping.ShippingCostItem"
+                    }
+                }
+            }
+        },
+        "shipping.ShippingOption": {
+            "type": "object",
+            "properties": {
+                "cost": {
+                    "type": "integer"
+                },
+                "courier": {
+                    "type": "string"
+                },
+                "etd": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
                 }
             }
         }

@@ -122,6 +122,23 @@ definitions:
             type: integer
         type: object
     type: object
+  merchant.MerchantResponse:
+    properties:
+      address:
+        type: string
+      city_id:
+        type: string
+      destination_id:
+        type: integer
+      id:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
   midtrans.NotificationPayload:
     properties:
       currency:
@@ -187,6 +204,10 @@ definitions:
         type: string
       shipping_fee:
         type: number
+      shippings:
+        items:
+          $ref: '#/definitions/order.ShippingsReq'
+        type: array
       user_id:
         type: string
     required:
@@ -259,6 +280,15 @@ definitions:
       url:
         type: string
     type: object
+  order.ShippingsReq:
+    properties:
+      courier:
+        type: string
+      merchant_id:
+        type: string
+      service:
+        type: string
+    type: object
   product.ProductDetailResponse:
     properties:
       base_price:
@@ -275,6 +305,10 @@ definitions:
         type: integer
       max_price:
         type: number
+      merchant_id:
+        type: string
+      merchant_name:
+        type: string
       min_price:
         type: number
       name:
@@ -306,6 +340,59 @@ definitions:
         type: string
       weight:
         type: number
+    type: object
+  shipping.MerchantShipping:
+    properties:
+      merchant_id:
+        type: string
+      merchant_name:
+        type: string
+      options:
+        items:
+          $ref: '#/definitions/shipping.ShippingOption'
+        type: array
+      weight_gram:
+        type: integer
+      weight_kg:
+        type: integer
+    type: object
+  shipping.ShippingCostItem:
+    properties:
+      qty:
+        minimum: 1
+        type: integer
+      variant_id:
+        type: string
+    required:
+    - qty
+    - variant_id
+    type: object
+  shipping.ShippingCostRequest:
+    properties:
+      address_id:
+        type: string
+      couriers:
+        items:
+          type: string
+        type: array
+      items:
+        items:
+          $ref: '#/definitions/shipping.ShippingCostItem'
+        type: array
+    required:
+    - address_id
+    - items
+    type: object
+  shipping.ShippingOption:
+    properties:
+      cost:
+        type: integer
+      courier:
+        type: string
+      etd:
+        type: string
+      service:
+        type: string
     type: object
 host: localhost:8085
 info:
@@ -526,6 +613,21 @@ paths:
       summary: Get List Subdistricts
       tags:
       - 3. Master
+  /merchant:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil daftar merchant (toko) yang aktif
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar merchant
+          schema:
+            $ref: '#/definitions/merchant.MerchantResponse'
+      summary: Get Merchants
+      tags:
+      - Merchant
   /order:
     get:
       description: Mengambil daftar order milik user yang login
@@ -645,6 +747,28 @@ paths:
       summary: Get Product Detail
       tags:
       - Product
+  /shipping/cost:
+    post:
+      consumes:
+      - application/json
+      description: Menghitung ongkir real per merchant untuk item checkout
+      parameters:
+      - description: Quote Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/shipping.ShippingCostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil menghitung ongkir
+          schema:
+            $ref: '#/definitions/shipping.MerchantShipping'
+      summary: Quote Shipping Cost
+      tags:
+      - Shipping
 swagger: "2.0"
 tags:
 - name: 1. Health Check
