@@ -11,6 +11,9 @@ type (
 	IService interface {
 		GetProduct(reqQuery *productModel.GetListProductReqQuerry) (resData []productModel.ListProductResponse, count int64, err error)
 		GetProductDetail(id string) (resData productModel.ProductDetailResponse, err error)
+		SetPrimaryImage(productID, imageID string) (int, error)
+		DeleteImage(productID, imageID string) (int, error)
+		ReorderImages(productID string, orders []productModel.ImageSortOrder) (int, error)
 	}
 
 	service struct {

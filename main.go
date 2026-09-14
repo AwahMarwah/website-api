@@ -5,6 +5,7 @@ import (
 	"website-api/cache"
 	"website-api/database"
 	"website-api/router"
+	"website-api/third-party/provider/minio"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -31,7 +32,13 @@ func main() {
 	// REDIS
 	redisClient := cache.NewRedis()
 
-	if err = router.Run(db, redisClient); err != nil {
+	// MINIO (object storage)
+	minioClient, err := minio.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err = router.Run(db, redisClient, minioClient); err != nil {
 		log.Fatal(err)
 	}
 

@@ -33,5 +33,19 @@ func (s *service) GetProductDetail(id string) (resData productModel.ProductDetai
 		})
 	}
 
+	// Load gallery images
+	images, err := s.productRepo.FindImagesByProductID(id)
+	if err != nil {
+		return resData, fmt.Errorf("gagal mengambil gambar produk: %w", err)
+	}
+	for _, img := range images {
+		resData.Images = append(resData.Images, productModel.ImageResponse{
+			ID:        img.ID,
+			URL:       img.ImageURL,
+			IsPrimary: img.IsPrimary,
+			SortOrder: img.SortOrder,
+		})
+	}
+
 	return resData, nil
 }

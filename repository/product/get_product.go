@@ -25,7 +25,7 @@ func (r *repo) GetProduct(reqQuery *productModel.GetListProductReqQuerry) (resDa
 		Joins("JOIN brands b ON b.id = products.brand_id").
 		Joins("JOIN merchants m ON m.id = products.merchant_id").
 		Joins("JOIN product_variants pv ON pv.product_id = products.id AND pv.is_active = ?", true).
-		Joins("JOIN product_images pi ON pi.product_id = products.id AND pi.is_primary = ?", true).
+		Joins("LEFT JOIN product_images pi ON pi.product_id = products.id AND pi.is_primary = ?", true).
 		Joins("LEFT JOIN reviews r ON r.product_id = products.id").
 		Joins("LEFT JOIN product_categories pc ON pc.product_id = products.id").
 		Joins("LEFT JOIN categories c ON c.id = pc.category_id").

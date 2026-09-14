@@ -31,6 +31,13 @@ type (
 		Weight      float32 `json:"weight"`
 	}
 
+	ImageResponse struct {
+		ID        string `json:"id"`
+		URL       string `json:"url"`
+		IsPrimary bool   `json:"is_primary"`
+		SortOrder int    `json:"sort_order"`
+	}
+
 	ProductDetailResponse struct {
 		Id           string            `json:"id"`
 		Name         string            `json:"name"`
@@ -48,5 +55,6 @@ type (
 		Rating       float64           `json:"rating"`
 		TotalReview  int32             `json:"total_review"`
 		Variants     []VariantResponse `gorm:"-" json:"variants"`
+		Images       []ImageResponse   `gorm:"-" json:"images"`
 	}
 )
