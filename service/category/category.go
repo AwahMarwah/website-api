@@ -8,6 +8,9 @@ import (
 type (
 	IService interface {
 		GetCategory(reqQuery *category.FilterCategory) (resData []*category.ListCategoryResponse, count int64, err error)
+		Create(req *category.CreateCategoryReq) (int, error)
+		Update(id string, req *category.UpdateCategoryReq) (int, error)
+		Delete(id string) (int, error)
 	}
 
 	service struct {

@@ -33,4 +33,8 @@ type (
 		UserID   string `json:"-"`
 		IsAdmin  bool   `json:"-"`
 	}
+
+	UpdateOrderStatusReq struct {
+		Status string `binding:"required,oneof=PENDING PAID PROCESSING SHIPPED COMPLETED CANCELLED EXPIRED" json:"status"`
+	}
 )

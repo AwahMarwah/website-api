@@ -10,6 +10,7 @@ type Merchant struct {
 	CityID        string
 	Address       string
 	IsActive      bool
+	UserID        string
 	CreatedAt     time.Time
 	UpdatedAt     *time.Time
 }

@@ -19,8 +19,10 @@ func (s *service) Update(req *modelRole.UpdateReq) (statusCode int, err error) {
 		"name":         req.Body.Name,
 		"display_name": req.Body.DisplayName,
 		"description":  req.Body.Description,
-		"is_active":    req.Body.IsActive,
 		"updated_at":   time.Now(),
+	}
+	if req.Body.IsActive != nil {
+		values["is_active"] = *req.Body.IsActive
 	}
 	if err = s.roleRepo.Update(&req.Path.Id, &values); err != nil {
 		return http.StatusInternalServerError, err

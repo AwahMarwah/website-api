@@ -23,6 +23,9 @@ type (
 
 	OrderItemResponse struct {
 		ID               string  `json:"id"`
+		ProductID        string  `json:"product_id"`
+		ProductName      string  `json:"product_name"`
+		Reviewed         bool    `json:"reviewed"`
 		ProductVariantID string  `json:"product_variant_id"`
 		Price            float64 `json:"price"`
 		Qty              int     `json:"qty"`

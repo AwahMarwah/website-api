@@ -9,5 +9,6 @@ type (
 		CityID        string `json:"city_id"`
 		Address       string `json:"address"`
 		IsActive      bool   `json:"is_active"`
+		UserID        string `json:"user_id"`
 	}
 )

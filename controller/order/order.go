@@ -6,6 +6,7 @@ import (
 	orderRepo "website-api/repository/order"
 	productRepo "website-api/repository/product"
 	product_variant "website-api/repository/product-variant"
+	reviewRepo "website-api/repository/review"
 	userRepo "website-api/repository/user"
 	userAddressRepo "website-api/repository/user_address"
 	"website-api/service/order"
@@ -31,6 +32,7 @@ func NewController(db *gorm.DB) *controller {
 			userRepo.NewRepo(db),
 			userAddressRepo.NewRepo(db),
 			merchantRepo.NewRepo(db),
+			reviewRepo.NewRepo(db),
 			transaction.NewTransactionManager(db),
 			midtransClient,
 			rajaongkirProvider.NewClient(),

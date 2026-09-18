@@ -23,5 +23,10 @@ func (s *service) Detail(id, userID, roleName string) (resData order.OrderRespon
 		return resData, http.StatusForbidden, fmt.Errorf("forbidden")
 	}
 
-	return toOrderResponse(o, items), http.StatusOK, nil
+	checkReviewed := o.UserID == userID // hanya pemilik yang status review-nya diisi
+	resData, err = s.toOrderResponse(o, items, userID, checkReviewed)
+	if err != nil {
+		return resData, http.StatusInternalServerError, err
+	}
+	return resData, http.StatusOK, nil
 }

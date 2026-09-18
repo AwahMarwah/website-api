@@ -241,10 +241,16 @@ definitions:
         type: string
       price:
         type: number
+      product_id:
+        type: string
+      product_name:
+        type: string
       product_variant_id:
         type: string
       qty:
         type: integer
+      reviewed:
+        type: boolean
       subtotal:
         type: number
     type: object
@@ -289,6 +295,17 @@ definitions:
       service:
         type: string
     type: object
+  product.ImageResponse:
+    properties:
+      id:
+        type: string
+      is_primary:
+        type: boolean
+      sort_order:
+        type: integer
+      url:
+        type: string
+    type: object
   product.ProductDetailResponse:
     properties:
       base_price:
@@ -301,6 +318,10 @@ definitions:
         type: string
       id:
         type: string
+      images:
+        items:
+          $ref: '#/definitions/product.ImageResponse'
+        type: array
       is_in_stock:
         type: integer
       max_price:
@@ -340,6 +361,53 @@ definitions:
         type: string
       weight:
         type: number
+    type: object
+  review.CreateReviewReq:
+    properties:
+      comment:
+        type: string
+      product_id:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - rating
+    type: object
+  review.ReviewResponse:
+    properties:
+      comment:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      product_id:
+        type: string
+      rating:
+        type: integer
+      user_name:
+        type: string
+    type: object
+  review.SwaggerReviewList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/review.ReviewResponse'
+        type: array
+      message:
+        type: string
+      page:
+        properties:
+          current:
+            type: integer
+          size:
+            type: integer
+          total:
+            type: integer
+        type: object
     type: object
   shipping.MerchantShipping:
     properties:
@@ -392,6 +460,17 @@ definitions:
       etd:
         type: string
       service:
+        type: string
+    type: object
+  upload.UploadImageResponse:
+    properties:
+      object_key:
+        type: string
+      resource_id:
+        type: string
+      scope:
+        type: string
+      url:
         type: string
     type: object
 host: localhost:8085
@@ -747,6 +826,88 @@ paths:
       summary: Get Product Detail
       tags:
       - Product
+  /product/{id}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload gambar produk (selalu secondary). Pertama kali otomatis
+        primary. Admin only.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File gambar (jpg/png, maks 2MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Upload berhasil
+          schema:
+            $ref: '#/definitions/upload.UploadImageResponse'
+      summary: Upload Product Image (Dedicated)
+      tags:
+      - Upload
+  /product/{id}/reviews:
+    get:
+      description: Ambil daftar ulasan produk (public)
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil ulasan
+          schema:
+            $ref: '#/definitions/review.SwaggerReviewList'
+      summary: List Reviews
+      tags:
+      - Review
+    post:
+      consumes:
+      - application/json
+      description: Tambah ulasan produk (hanya user dengan order COMPLETED utk produk
+        tsb)
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Review Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/review.CreateReviewReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Review berhasil dibuat
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create Review
+      tags:
+      - Review
   /shipping/cost:
     post:
       consumes:
@@ -769,6 +930,38 @@ paths:
       summary: Quote Shipping Cost
       tags:
       - Shipping
+  /upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload gambar (avatar user atau produk) ke object storage. Tipe
+        jpg/png, maks 2MB.
+      parameters:
+      - description: File gambar
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: avatar | product
+        in: formData
+        name: scope
+        required: true
+        type: string
+      - description: ID user (avatar) atau ID produk (product)
+        in: formData
+        name: resource_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Upload berhasil
+          schema:
+            $ref: '#/definitions/upload.UploadImageResponse'
+      summary: Upload Image
+      tags:
+      - Upload
 swagger: "2.0"
 tags:
 - name: 1. Health Check

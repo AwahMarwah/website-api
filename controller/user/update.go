@@ -21,6 +21,7 @@ func (c *controller) Update(ctx *gin.Context) {
 	statusCode, err := c.userService.Update(&req)
 	if err != nil {
 		response.Error(ctx, statusCode, err.Error())
+		return
 	}
-	response.Success(ctx, statusCode, "", nil)
+	response.Success(ctx, http.StatusOK, "", nil)
 }

@@ -33,8 +33,8 @@ type (
 			Id string `uri:"id" binding:"required"`
 		}
 		Body struct {
-			PhoneNumber string `binding:"required" json:"phone_number"`
-			RoleID      string `binding:"required" json:"role_id"`
+			PhoneNumber string `binding:"omitempty,min=10,max=15" json:"phone_number"`
+			RoleID      string `binding:"omitempty" json:"role_id"`
 		}
 	}
 )

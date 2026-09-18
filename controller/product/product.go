@@ -2,6 +2,7 @@ package product
 
 import (
 	"website-api/cache"
+	"website-api/database/transaction"
 	productRepo "website-api/repository/product"
 	product_variant "website-api/repository/product-variant"
 	"website-api/service/product"
@@ -20,7 +21,7 @@ type controller struct {
 func NewController(db *gorm.DB, redis *redis.Client, minio minioProvider.Provider) *controller {
 	redisCache := cache.NewRedisCache(redis)
 	return &controller{
-		productService: product.NewService(productRepo.NewRepo(db), product_variant.NewRepo(db), redisCache),
+		productService: product.NewService(productRepo.NewRepo(db), product_variant.NewRepo(db), redisCache, transaction.NewTransactionManager(db)),
 		uploadService:  upload.NewService(minio, nil, productRepo.NewRepo(db)),
 	}
 }

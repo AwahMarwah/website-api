@@ -20,7 +20,7 @@ type (
 			Name        string `binding:"required" json:"name"`
 			DisplayName string `binding:"required" json:"display_name"`
 			Description string `binding:"required" json:"description"`
-			IsActive    *bool  `binding:"required" json:"is_active"`
+			IsActive    *bool  `json:"is_active"`
 		}
 	}
 )

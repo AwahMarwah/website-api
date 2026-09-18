@@ -18,7 +18,11 @@ func (s *service) List(req *order.ListOrderReqQuery) (resData []order.OrderRespo
 		if err != nil {
 			return nil, 0, http.StatusInternalServerError, fmt.Errorf("gagal mengambil item order: %w", err)
 		}
-		resData = append(resData, toOrderResponse(o, items))
+		resItem, err := s.toOrderResponse(o, items, req.UserID, true)
+		if err != nil {
+			return nil, 0, http.StatusInternalServerError, err
+		}
+		resData = append(resData, resItem)
 	}
 	return resData, total, http.StatusOK, nil
 }

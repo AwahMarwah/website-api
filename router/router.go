@@ -13,6 +13,7 @@ import (
 	"website-api/controller/order"
 	permissionController "website-api/controller/permission"
 	"website-api/controller/product"
+	reviewController "website-api/controller/review"
 	"website-api/controller/role"
 	shippingController "website-api/controller/shipping"
 	uploadController "website-api/controller/upload"
@@ -103,6 +104,14 @@ func Run(db database.DB, redis *redis.Client, minioProvider minio.Provider) (err
 		productGroup.GET("/:id", productController.GetProductDetail)
 	}
 
+	// Admin product CRUD
+	adminProductGroup := router.Group("/admin/product", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
+	{
+		adminProductGroup.POST("", productController.CreateProduct)
+		adminProductGroup.PUT("/:id", productController.UpdateProduct)
+		adminProductGroup.DELETE("/:id", productController.DeleteProduct)
+	}
+
 	// Admin product image management
 	adminProductImageGroup := router.Group("/product", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
 	{
@@ -112,17 +121,40 @@ func Run(db database.DB, redis *redis.Client, minioProvider minio.Provider) (err
 		adminProductImageGroup.PUT("/:id/images/reorder", productController.ReorderImages)
 	}
 
-	brandController := brand.NewController(db.GormDb)
+	// Review produk
+	reviewCtl := reviewController.NewController(db.GormDb)
+	router.GET("/product/:id/reviews", reviewCtl.ListByProduct)
+	router.POST("/product/:id/reviews", middleware.AuthMiddleware(db.GormDb), reviewCtl.Create)
+
+brandController := brand.NewController(db.GormDb)
 	brandGroup := router.Group("/brand")
 	{
+		// PUBLIC
 		brandGroup.GET("", brandController.GetBrand)
-		brandGroup.GET(":slug", brandController.GetBrandBySlug)
+		brandGroup.GET("/:slug", brandController.GetBrandBySlug)
 	}
 
-	categoryController := category.NewController(db.GormDb)
+	// Admin brand CRUD
+	adminBrandGroup := router.Group("/admin/brand", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
+	{
+		adminBrandGroup.POST("", brandController.Create)
+		adminBrandGroup.PUT("/:id", brandController.Update)
+		adminBrandGroup.DELETE("/:id", brandController.Delete)
+	}
+
+categoryController := category.NewController(db.GormDb)
 	categoryGroup := router.Group("/category")
 	{
+		// PUBLIC
 		categoryGroup.GET("", categoryController.GetCategory)
+	}
+
+	// Admin category CRUD
+	adminCategoryGroup := router.Group("/admin/category", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
+	{
+		adminCategoryGroup.POST("", categoryController.Create)
+		adminCategoryGroup.PUT("/:id", categoryController.Update)
+		adminCategoryGroup.DELETE("/:id", categoryController.Delete)
 	}
 
 	cartController := cart.NewController(db.GormDb)
@@ -147,6 +179,7 @@ func Run(db database.DB, redis *redis.Client, minioProvider minio.Provider) (err
 	adminOrderGroup := router.Group("/admin/orders")
 	{
 		adminOrderGroup.GET("", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"), adminOrderController.ListAdmin)
+		adminOrderGroup.PATCH("/:id/status", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"), adminOrderController.UpdateStatusAdmin)
 	}
 
 	menuCtl := menuController.NewController(db.GormDb)
@@ -181,9 +214,20 @@ func Run(db database.DB, redis *redis.Client, minioProvider minio.Provider) (err
 	merchantCtl := merchantController.NewController(db.GormDb)
 	merchantGroup := router.Group("/merchant")
 	{
+		// Public
 		merchantGroup.GET("", merchantCtl.List)
-		merchantGroup.GET("/:id", merchantCtl.Detail)
 	}
+
+	// Merchant self-service (auth)
+	merchantAuthGroup := router.Group("/merchant", middleware.AuthMiddleware(db.GormDb))
+	{
+		merchantAuthGroup.POST("/register", merchantCtl.Register)
+		merchantAuthGroup.GET("/my", merchantCtl.GetMy)
+		merchantAuthGroup.PUT("/my", middleware.RequireRole("super_admin", "admin", "merchant"), merchantCtl.UpdateMy)
+	}
+
+	// Admin approve merchant
+	router.PATCH("/admin/merchant/:id/approve", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"), merchantCtl.Approve)
 
 	shippingCtl := shippingController.NewController(db.GormDb)
 	router.POST("/shipping/cost", middleware.AuthMiddleware(db.GormDb), shippingCtl.Cost)

@@ -2,7 +2,6 @@ package user_address
 
 import (
 	"errors"
-	"fmt"
 	userAddressModel "website-api/model/user_address"
 )
 
@@ -12,18 +11,20 @@ func (s *service) UpdateByID(req *userAddressModel.ReqUpdateUserAddress) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(userAddress, "service address")
 
 	if userAddress.ID == "" {
 		return errors.New("record not found")
 	}
 
 	values := map[string]any{
-		"recipient_name": req.Body.RecepientName,
-		"city":           req.Body.City,
-		"postal_code":    req.Body.PostalCode,
+		"recipient_name": req.Body.RecipientName,
 		"phone_number":   req.Body.PhoneNumber,
 		"full_address":   req.Body.FullAddress,
+		"province_id":    req.Body.ProvinceID,
+		"city_id":        req.Body.CityID,
+		"district_id":    req.Body.DistrictID,
+		"subdistrict_id": req.Body.SubdistrictID,
+		"postal_code":    req.Body.PostalCode,
 	}
 
 	return s.userAddressRepo.Update(&req.Path.ID, &values)

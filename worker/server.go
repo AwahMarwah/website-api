@@ -12,6 +12,7 @@ import (
 	merchantRepo "website-api/repository/merchant"
 	productRepo "website-api/repository/product"
 	product_variant "website-api/repository/product-variant"
+	reviewRepo "website-api/repository/review"
 	userRepo "website-api/repository/user"
 	userAddressRepo "website-api/repository/user_address"
 	orderService "website-api/service/order"
@@ -90,6 +91,7 @@ func handleCancelExpiredOrders(ctx context.Context, t *asynq.Task) error {
 		userRepo.NewRepo(db.GormDb),
 		userAddressRepo.NewRepo(db.GormDb),
 		merchantRepo.NewRepo(db.GormDb),
+		reviewRepo.NewRepo(db.GormDb),
 		transaction.NewTransactionManager(db.GormDb),
 		midtransProvider.NewClient(),
 		rajaongkirProvider.NewClient(),

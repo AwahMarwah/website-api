@@ -81,3 +81,13 @@ func FilterSubdistrictSearch(request string) func(*gorm.DB) *gorm.DB {
 		return db
 	}
 }
+
+func FilterUserSearch(request string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if request != "" {
+			pattern := fmt.Sprintf("%%%s%%", request)
+			return db.Where("users.name ILIKE ? OR users.email ILIKE ? OR users.user_name ILIKE ?", pattern, pattern, pattern)
+		}
+		return db
+	}
+}

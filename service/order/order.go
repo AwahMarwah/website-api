@@ -7,6 +7,7 @@ import (
 	"website-api/repository/product"
 	product_variant "website-api/repository/product-variant"
 	orderRepo "website-api/repository/order"
+	reviewRepo "website-api/repository/review"
 	userRepo "website-api/repository/user"
 	userAddressRepo "website-api/repository/user_address"
 	"website-api/third-party/provider/midtrans"
@@ -28,6 +29,7 @@ type (
 		List(req *order.ListOrderReqQuery) (resData []order.OrderResponse, count int64, statusCode int, err error)
 		Detail(id, userID, roleName string) (resData order.OrderResponse, statusCode int, err error)
 		ListAdmin(req *order.ListOrderReqQuery) (resData []order.OrderResponse, count int64, statusCode int, err error)
+		UpdateStatusAdmin(id, status string) (int, error)
 	}
 
 	service struct {
@@ -37,6 +39,7 @@ type (
 		userRepo           userRepo.IRepo
 		userAddressRepo    userAddressRepo.IRepo
 		merchantRepo       merchantRepo.IRepo
+		reviewRepo         reviewRepo.IRepo
 		txManager          transaction.ITransactionManager
 		midtransProvider   midtrans.Provider
 		rajaOngkir         rajaongkir.Provider
@@ -51,6 +54,7 @@ func NewService(
 	userRepo userRepo.IRepo,
 	userAddressRepo userAddressRepo.IRepo,
 	merchantRepo merchantRepo.IRepo,
+	reviewRepo reviewRepo.IRepo,
 	txManager transaction.ITransactionManager,
 	midtransProvider midtrans.Provider,
 	rajaOngkir rajaongkir.Provider,
@@ -63,6 +67,7 @@ func NewService(
 		userRepo:           userRepo,
 		userAddressRepo:    userAddressRepo,
 		merchantRepo:       merchantRepo,
+		reviewRepo:         reviewRepo,
 		txManager:          txManager,
 		midtransProvider:   midtransProvider,
 		rajaOngkir:         rajaOngkir,

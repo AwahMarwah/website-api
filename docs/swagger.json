@@ -543,6 +543,126 @@
                 }
             }
         },
+        "/product/{id}/image": {
+            "post": {
+                "description": "Upload gambar produk (selalu secondary). Pertama kali otomatis primary. Admin only.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Upload"
+                ],
+                "summary": "Upload Product Image (Dedicated)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File gambar (jpg/png, maks 2MB)",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Upload berhasil",
+                        "schema": {
+                            "$ref": "#/definitions/upload.UploadImageResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/{id}/reviews": {
+            "get": {
+                "description": "Ambil daftar ulasan produk (public)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Review"
+                ],
+                "summary": "List Reviews",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil ulasan",
+                        "schema": {
+                            "$ref": "#/definitions/review.SwaggerReviewList"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Tambah ulasan produk (hanya user dengan order COMPLETED utk produk tsb)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Review"
+                ],
+                "summary": "Create Review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Review Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/review.CreateReviewReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Review berhasil dibuat",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/shipping/cost": {
             "post": {
                 "description": "Menghitung ongkir real per merchant untuk item checkout",
@@ -572,6 +692,52 @@
                         "description": "Berhasil menghitung ongkir",
                         "schema": {
                             "$ref": "#/definitions/shipping.MerchantShipping"
+                        }
+                    }
+                }
+            }
+        },
+        "/upload/image": {
+            "post": {
+                "description": "Upload gambar (avatar user atau produk) ke object storage. Tipe jpg/png, maks 2MB.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Upload"
+                ],
+                "summary": "Upload Image",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File gambar",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "avatar | product",
+                        "name": "scope",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID user (avatar) atau ID produk (product)",
+                        "name": "resource_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Upload berhasil",
+                        "schema": {
+                            "$ref": "#/definitions/upload.UploadImageResponse"
                         }
                     }
                 }
@@ -941,11 +1107,20 @@
                 "price": {
                     "type": "number"
                 },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
                 "product_variant_id": {
                     "type": "string"
                 },
                 "qty": {
                     "type": "integer"
+                },
+                "reviewed": {
+                    "type": "boolean"
                 },
                 "subtotal": {
                     "type": "number"
@@ -1015,6 +1190,23 @@
                 }
             }
         },
+        "product.ImageResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "is_primary": {
+                    "type": "boolean"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "product.ProductDetailResponse": {
             "type": "object",
             "properties": {
@@ -1032,6 +1224,12 @@
                 },
                 "id": {
                     "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product.ImageResponse"
+                    }
                 },
                 "is_in_stock": {
                     "type": "integer"
@@ -1091,6 +1289,77 @@
                 },
                 "weight": {
                     "type": "number"
+                }
+            }
+        },
+        "review.CreateReviewReq": {
+            "type": "object",
+            "required": [
+                "product_id",
+                "rating"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
+                }
+            }
+        },
+        "review.ReviewResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "review.SwaggerReviewList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/review.ReviewResponse"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "object",
+                    "properties": {
+                        "current": {
+                            "type": "integer"
+                        },
+                        "size": {
+                            "type": "integer"
+                        },
+                        "total": {
+                            "type": "integer"
+                        }
+                    }
                 }
             }
         },
@@ -1170,6 +1439,23 @@
                     "type": "string"
                 },
                 "service": {
+                    "type": "string"
+                }
+            }
+        },
+        "upload.UploadImageResponse": {
+            "type": "object",
+            "properties": {
+                "object_key": {
+                    "type": "string"
+                },
+                "resource_id": {
+                    "type": "string"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "url": {
                     "type": "string"
                 }
             }

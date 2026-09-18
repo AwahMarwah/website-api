@@ -27,6 +27,7 @@ type (
 		Picture            string     `json:"picture"`
 		Email              string     `json:"email"`
 		PhoneNumber        string     `json:"phone_number"`
+		RoleName           string     `json:"role_name"`
 		IsVerified         bool       `json:"is_verified"`
 		CreatedAt          time.Time  `json:"created_at"`
 		CreatedAtFormatted string     `json:"created_at_formatted"`

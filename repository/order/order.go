@@ -18,6 +18,7 @@ type (
 		UpdateStatus(id, status string) error
 		UpdatePaymentInfo(id string, values map[string]interface{}) error
 		CreateMerchantShipping(shipping *order.OrderMerchantShipping) error
+		HasCompletedOrderForProduct(userID, productID string) (bool, error)
 		FindExpiredPending(now time.Time) ([]order.Order, error)
 		WithTx(tx *gorm.DB) IRepo
 	}
