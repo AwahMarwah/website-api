@@ -11,6 +11,7 @@ type (
 		GetCategory(reqQuery *category.FilterCategory) (resData []*category.ListCategoryResponse, count int64, err error)
 		Create(cat category.Category) error
 		FindByID(id string) (category.Category, error)
+		FindBySlug(slug string) (category.Category, error)
 		Update(id string, values map[string]any) error
 		Delete(id string) error
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 func (s *service) Detail(id, userID, roleName string) (resData order.OrderResponse, statusCode int, err error) {
-	o, items, err := s.orderRepo.FindByIDWithItems(id)
+	o, _, err := s.orderRepo.FindByIDWithItems(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return resData, http.StatusNotFound, fmt.Errorf("order not found")
@@ -24,9 +24,13 @@ func (s *service) Detail(id, userID, roleName string) (resData order.OrderRespon
 	}
 
 	checkReviewed := o.UserID == userID // hanya pemilik yang status review-nya diisi
-	resData, err = s.toOrderResponse(o, items, userID, checkReviewed)
-	if err != nil {
-		return resData, http.StatusInternalServerError, err
+	var reviewed map[string]bool
+	if checkReviewed {
+		reviewed, err = s.reviewRepo.HasReviewedMany(userID, productIDsFromOrders([]order.Order{o}))
+		if err != nil {
+			return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil status review: %w", err)
+		}
 	}
+	resData = s.toOrderResponse(o, reviewed, userID, checkReviewed)
 	return resData, http.StatusOK, nil
 }

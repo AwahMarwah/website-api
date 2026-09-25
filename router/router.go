@@ -51,12 +51,23 @@ func Run(db database.DB, redis *redis.Client, minioProvider minio.Provider) (err
 		authGroup.POST("/reset-password", authController.ResetPassword)
 		authGroup.POST("/resend-verification", authController.ResendVerification)
 	}
+	// Change password (auth required)
+	router.POST("/auth/change-password", middleware.AuthMiddleware(db.GormDb), authController.ChangePassword)
 
 	contentPageController := contentPage.NewController(db.GormDb, redis)
 	contentPageGroup := router.Group("/content-page")
 	{
 		contentPageGroup.GET("/pages/:slug", contentPageController.GetBySlug)
 		contentPageGroup.GET("/faqs", contentPageController.GetFaq)
+	}
+
+	// Admin FAQ CRUD
+	adminCpGroup := router.Group("/admin/content-page", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
+	{
+		adminCpGroup.GET("/faqs", contentPageController.GetFaqListAdmin)
+		adminCpGroup.POST("/faqs", contentPageController.CreateFaq)
+		adminCpGroup.PUT("/faqs/:id", contentPageController.UpdateFaq)
+		adminCpGroup.DELETE("/faqs/:id", contentPageController.DeleteFaq)
 	}
 
 	userController := user.NewController(db.GormDb)
@@ -147,6 +158,7 @@ categoryController := category.NewController(db.GormDb)
 	{
 		// PUBLIC
 		categoryGroup.GET("", categoryController.GetCategory)
+		categoryGroup.GET("/:slug", categoryController.GetCategoryBySlug)
 	}
 
 	// Admin category CRUD
@@ -172,6 +184,7 @@ categoryController := category.NewController(db.GormDb)
 		orderGroup.GET("", middleware.AuthMiddleware(db.GormDb), orderController.List)
 		orderGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), orderController.Detail)
 		orderGroup.POST("/:id/payment-link", middleware.AuthMiddleware(db.GormDb), orderController.CreatePaymentLink)
+		orderGroup.PATCH("/:id/cancel", middleware.AuthMiddleware(db.GormDb), orderController.CancelOrder)
 		orderGroup.POST("/notification", orderController.HandleNotification)
 	}
 

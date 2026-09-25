@@ -6,8 +6,9 @@ type (
 	}
 
 	FaqListReqQuery struct {
-		Limit  int `form:"limit"`
+		Limit  int    `form:"limit"`
 		Offset int
-		Page   int `form:"page"`
+		Page   int    `form:"page"`
+		Search string `form:"search"`
 	}
 )

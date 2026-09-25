@@ -1,7 +1,6 @@
 package product
 
 import (
-	"fmt"
 	"time"
 	libStruct "website-api/library"
 	lib "website-api/library/cache"
@@ -12,13 +11,10 @@ func (s *service) GetProduct(reqQuery *productModel.GetListProductReqQuerry) (re
 	cacheKey := lib.GenerateCacheKey(libStruct.GetStructName(productModel.Product{}), reqQuery)
 
 	// Check Cache
-	err = s.cache.Get(cacheKey, &resData)
-	if err == nil {
-		fmt.Printf("CACHE HIT | key=%s\n", cacheKey)
-		return resData, count, nil
+	var cached productModel.ProductListCache
+	if err = s.cache.Get(cacheKey, &cached); err == nil {
+		return cached.Data, cached.Count, nil
 	}
-
-	fmt.Printf("CACHE MISS | key=%s\n", cacheKey)
 
 	// Get from DB
 	resData, count, err = s.productRepo.GetProduct(reqQuery)
@@ -27,8 +23,7 @@ func (s *service) GetProduct(reqQuery *productModel.GetListProductReqQuerry) (re
 	}
 
 	// Save to Redis
-	_ = s.cache.Set(cacheKey, resData, 5*time.Minute)
-	fmt.Printf("CACHE SET | key=%s | ttl=5m\n", cacheKey)
+	_ = s.cache.Set(cacheKey, productModel.ProductListCache{Data: resData, Count: count}, 5*time.Minute)
 
 	return resData, count, nil
 }

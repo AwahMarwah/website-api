@@ -13,7 +13,6 @@ type (
 		FindByIDWithItems(id string) (order.Order, []order.OrderItem, error)
 		FindByUserID(userID string, status string, limit, offset int) ([]order.Order, int64, error)
 		FindAll(status string, limit, offset int) ([]order.Order, int64, error)
-		FindItemsByOrderID(orderID string) ([]order.OrderItem, error)
 		Update(order.Order) error
 		UpdateStatus(id, status string) error
 		UpdatePaymentInfo(id string, values map[string]interface{}) error
@@ -41,12 +40,6 @@ func (r *repo) WithTx(tx *gorm.DB) IRepo {
 
 func (r *repo) FindByID(id string) (orderModel order.Order, err error) {
 	return orderModel, r.db.Where("id = ?", id).First(&orderModel).Error
-}
-
-func (r *repo) FindItemsByOrderID(orderID string) ([]order.OrderItem, error) {
-	var items []order.OrderItem
-	err := r.db.Where("order_id = ?", orderID).Find(&items).Error
-	return items, err
 }
 
 func (r *repo) Update(orderModel order.Order) error {

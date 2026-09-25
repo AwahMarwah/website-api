@@ -16,7 +16,7 @@ import (
 func (s *service) CreatePaymentLink(orderID, userID, roleName string) (order.PaymentLinkResponse, int, error) {
 	var resData order.PaymentLinkResponse
 
-	existingOrder, err := s.orderRepo.FindByID(orderID)
+	existingOrder, _, err := s.orderRepo.FindByIDWithItems(orderID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return resData, http.StatusNotFound, fmt.Errorf("order not found")
@@ -33,13 +33,8 @@ func (s *service) CreatePaymentLink(orderID, userID, roleName string) (order.Pay
 		return resData, http.StatusConflict, fmt.Errorf("order sudah tidak dalam status pending")
 	}
 
-	items, err := s.orderRepo.FindItemsByOrderID(orderID)
-	if err != nil {
-		return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil item order: %w", err)
-	}
-
 	var itemDetails []midtransProvider.PaymentLinkItemDetail
-	for _, item := range items {
+	for _, item := range existingOrder.Items {
 		itemDetails = append(itemDetails, midtransProvider.PaymentLinkItemDetail{
 			ID:       item.ID,
 			Name:     item.ProductVariantID,

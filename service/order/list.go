@@ -12,17 +12,14 @@ func (s *service) List(req *order.ListOrderReqQuery) (resData []order.OrderRespo
 		return nil, 0, http.StatusInternalServerError, fmt.Errorf("gagal mengambil daftar order: %w", err)
 	}
 
-	resData = make([]order.OrderResponse, 0)
+	reviewed, err := s.reviewRepo.HasReviewedMany(req.UserID, productIDsFromOrders(orders))
+	if err != nil {
+		return nil, 0, http.StatusInternalServerError, fmt.Errorf("gagal mengambil status review: %w", err)
+	}
+
+	resData = make([]order.OrderResponse, 0, len(orders))
 	for _, o := range orders {
-		items, err := s.orderRepo.FindItemsByOrderID(o.ID)
-		if err != nil {
-			return nil, 0, http.StatusInternalServerError, fmt.Errorf("gagal mengambil item order: %w", err)
-		}
-		resItem, err := s.toOrderResponse(o, items, req.UserID, true)
-		if err != nil {
-			return nil, 0, http.StatusInternalServerError, err
-		}
-		resData = append(resData, resItem)
+		resData = append(resData, s.toOrderResponse(o, reviewed, req.UserID, true))
 	}
 	return resData, total, http.StatusOK, nil
 }

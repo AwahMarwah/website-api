@@ -30,5 +30,8 @@ func main() {
 	if err = contentPageService.Seed(); err != nil {
 		log.Fatal(err)
 	}
+	if err = contentPageService.SeedCmsFaq(); err != nil {
+		log.Fatal(err)
+	}
 	log.Print(common.SuccessfullyCreated)
 }

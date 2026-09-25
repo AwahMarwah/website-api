@@ -1,6 +1,10 @@
 package order
 
-import "time"
+import (
+	"time"
+
+	"website-api/model/product-variant"
+)
 
 type Order struct {
 	ID            string
@@ -15,6 +19,7 @@ type Order struct {
 	ExpiredAt     *time.Time
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	Items         []OrderItem `gorm:"foreignKey:OrderID"`
 }
 
 type OrderItem struct {
@@ -25,6 +30,7 @@ type OrderItem struct {
 	Qty              int
 	Subtotal         float64
 	TotalWeightGram  int
+	ProductVariant   *product_variant.ProductVariant `gorm:"foreignKey:ProductVariantID"`
 }
 
 type OrderMerchantShipping struct {

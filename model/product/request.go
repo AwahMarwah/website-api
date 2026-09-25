@@ -9,6 +9,8 @@ type (
 		Category string  `form:"category"`
 		MinPrice float64 `form:"min_price"`
 		MaxPrice float64 `form:"max_price"`
+		Search   string  `form:"search"`
+		Sort     string  `form:"sort"`
 	}
 
 	ReqPath struct {

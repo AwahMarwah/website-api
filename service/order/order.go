@@ -30,6 +30,7 @@ type (
 		Detail(id, userID, roleName string) (resData order.OrderResponse, statusCode int, err error)
 		ListAdmin(req *order.ListOrderReqQuery) (resData []order.OrderResponse, count int64, statusCode int, err error)
 		UpdateStatusAdmin(id, status string) (int, error)
+		CancelOrder(orderID, userID string) (int, error)
 	}
 
 	service struct {

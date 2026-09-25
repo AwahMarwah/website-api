@@ -71,6 +71,11 @@ const docTemplate = `{
                         "type": "integer",
                         "name": "page",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -480,6 +485,36 @@ const docTemplate = `{
                         "description": "Berhasil mengambil detail order",
                         "schema": {
                             "$ref": "#/definitions/order.OrderResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}/cancel": {
+            "patch": {
+                "description": "Membatalkan order oleh user pemilik (hanya status PENDING)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "Cancel Order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order berhasil dibatalkan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -954,6 +989,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "slug": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

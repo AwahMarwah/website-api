@@ -16,6 +16,10 @@ func (r *repo) FindByID(id string) (cat category.Category, err error) {
 	return cat, r.db.Where("id = ?", id).First(&cat).Error
 }
 
+func (r *repo) FindBySlug(slug string) (cat category.Category, err error) {
+	return cat, r.db.Where("slug = ?", slug).First(&cat).Error
+}
+
 func (r *repo) Update(id string, values map[string]any) error {
 	return r.db.Model(&category.Category{}).Where("id = ?", id).Updates(values).Error
 }

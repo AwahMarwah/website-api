@@ -91,3 +91,13 @@ func FilterUserSearch(request string) func(*gorm.DB) *gorm.DB {
 		return db
 	}
 }
+
+func FilterProductSearch(request string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if request != "" {
+			pattern := fmt.Sprintf("%%%s%%", request)
+			return db.Where("products.name ILIKE ? OR products.slug ILIKE ? OR products.description ILIKE ?", pattern, pattern, pattern)
+		}
+		return db
+	}
+}

@@ -10,6 +10,7 @@ type (
 	IRepo interface {
 		FindByID(id string) (resData productModel.Product, err error)
 		FindDetailByID(id string) (resData productModel.ProductDetailResponse, err error)
+		FindDetailCollections(id string) (resData productModel.Product, err error)
 		GetProduct(reqQuery *productModel.GetListProductReqQuerry) (resData []productModel.ListProductResponse, count int64, err error)
 		Create(product productModel.Product) error
 		UpdateProduct(id string, values map[string]any) error

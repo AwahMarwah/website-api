@@ -1,9 +1,12 @@
 package user
 
 import (
+	"time"
+
+	"website-api/model/role"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -25,6 +28,7 @@ type User struct {
 	DeletedAt                  *time.Time
 	DeletedBy                  string
 	RoleId                     string
+	Role                       *role.Role `gorm:"foreignKey:RoleId"`
 }
 
 func (user *User) BeforeCreate(*gorm.DB) error {

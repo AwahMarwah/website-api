@@ -12,7 +12,7 @@ import (
 )
 
 func (s *service) Detail(reqPath *userModel.ReqPath) (resData userModel.DetailResponse, statusCode int, err error) {
-	user, err := s.userRepo.Take([]string{"id", "name", "user_name", "email", "encrypted_password", "phone_number", "is_verified", "role_id"}, &userModel.User{Id: reqPath.Id})
+	user, err := s.userRepo.TakeWithRole([]string{"id", "name", "user_name", "email", "encrypted_password", "phone_number", "is_verified", "role_id"}, &userModel.User{Id: reqPath.Id})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return resData, http.StatusNotFound, fmt.Errorf("user not found")
@@ -26,9 +26,10 @@ func (s *service) Detail(reqPath *userModel.ReqPath) (resData userModel.DetailRe
 		}
 		return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil data user address: %w", err)
 	}
-	role, err := s.roleRepo.Take([]string{"id", "name", "display_name", "description"}, &roleModel.Role{Id: user.RoleId})
-	if err != nil {
-		return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil data role: %w", err)
+
+	var role roleModel.Role
+	if user.Role != nil {
+		role = *user.Role
 	}
 	resData = userModel.DetailResponse{
 		ID:          user.Id,
@@ -40,5 +41,5 @@ func (s *service) Detail(reqPath *userModel.ReqPath) (resData userModel.DetailRe
 		Role:        role,
 		Address:     userAddress,
 	}
-	return resData, statusCode, nil
+	return resData, http.StatusOK, nil
 }

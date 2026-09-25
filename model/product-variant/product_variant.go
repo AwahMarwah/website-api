@@ -1,6 +1,10 @@
 package product_variant
 
-import "time"
+import (
+	"time"
+
+	"website-api/model/product"
+)
 
 type ProductVariant struct {
 	ID          string
@@ -12,4 +16,5 @@ type ProductVariant struct {
 	Weight      float32
 	IsActive    bool
 	CreatedAt   time.Time
+	Product     *product.Product `gorm:"foreignKey:ProductID"`
 }

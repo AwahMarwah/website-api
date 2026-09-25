@@ -11,6 +11,7 @@ type (
 		Create(user *modelUser.User) (err error)
 		Find(reqQuery *modelUser.ListUserReqQuery) (users []modelUser.ListUserResponse, count int64, err error)
 		Take(selectParams []string, conditions *modelUser.User) (user modelUser.User, err error)
+		TakeWithRole(selectParams []string, conditions *modelUser.User) (user modelUser.User, err error)
 		Update(id *string, values *map[string]any) (err error)
 		Seed() (err error)
 	}

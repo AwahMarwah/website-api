@@ -12,17 +12,9 @@ func (s *service) ListAdmin(req *order.ListOrderReqQuery) (resData []order.Order
 		return nil, 0, http.StatusInternalServerError, fmt.Errorf("gagal mengambil daftar order: %w", err)
 	}
 
-	resData = make([]order.OrderResponse, 0)
+	resData = make([]order.OrderResponse, 0, len(orders))
 	for _, o := range orders {
-		items, err := s.orderRepo.FindItemsByOrderID(o.ID)
-		if err != nil {
-			return nil, 0, http.StatusInternalServerError, fmt.Errorf("gagal mengambil item order: %w", err)
-		}
-		resItem, err := s.toOrderResponse(o, items, "", false)
-		if err != nil {
-			return nil, 0, http.StatusInternalServerError, err
-		}
-		resData = append(resData, resItem)
+		resData = append(resData, s.toOrderResponse(o, nil, "", false))
 	}
 	return resData, total, http.StatusOK, nil
 }
