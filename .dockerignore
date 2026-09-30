@@ -1,0 +1,11 @@
+.git
+.gitignore
+.vscode
+bin/
+*.exe
+.env
+.env.*
+!.env.docker.example
+README.md
+tmp/
+*.log
