@@ -20,6 +20,7 @@ func (c *controller) Update(ctx *gin.Context) {
 	}
 	if statusCode, err := c.roleService.Update(&req); err != nil {
 		response.Error(ctx, statusCode, err.Error())
+		return
 	}
 	response.Success(ctx, http.StatusOK, common.SuccessfullyUpdated, nil)
 }

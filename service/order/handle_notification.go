@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	"website-api/common"
 	"website-api/model/order"
 	userModel "website-api/model/user"
 	"website-api/task"
@@ -15,12 +18,16 @@ import (
 
 // HandleNotification memproses notifikasi webhook dari Midtrans.
 // Payload diverifikasi signature, lalu status order diperbarui.
-func (s *service) HandleNotification(payload midtransProvider.NotificationPayload) (order.NotificationResponse, int, error) {	resData := order.NotificationResponse{
+//
+// Notifikasi Midtrans bisa dikirim berulang dan beruntun (capture lalu settlement).
+// Karena itu perpindahan status memakai UpdateStatusFrom yang bersyarat: kalau status
+// sudah lebih maju, notifikasi lama diabaikan dan tidak memicu efek samping apa pun.
+func (s *service) HandleNotification(payload midtransProvider.NotificationPayload) (order.NotificationResponse, int, error) {
+	resData := order.NotificationResponse{
 		OrderID:   payload.OrderID,
 		Processed: false,
 	}
 
-	// cek order terlebih dahulu
 	existingOrder, err := s.orderRepo.FindByID(payload.OrderID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -30,18 +37,17 @@ func (s *service) HandleNotification(payload midtransProvider.NotificationPayloa
 		return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil order: %w", err)
 	}
 
-	// tentukan status baru dari payload
 	newStatus := payload.ResolveStatus()
 
-	// jangan ubah order yang sudah PAID / final
-	if existingOrder.Status == "PAID" || existingOrder.Status == "COMPLETED" || existingOrder.Status == "CANCELLED" {
+	// jangan proses ulang order yang sudah final
+	if isTerminalStatus(existingOrder.Status) {
 		resData.Status = existingOrder.Status
 		resData.Processed = true
 		return resData, http.StatusOK, nil
 	}
 
-	// verifikasi signature hanya untuk transaksi yang mengubah status ke pembayaran berhasil
-	// untuk keamanan, validasi jumlah yang dibayar sesuai total order
+	// Verifikasi jumlah yang dibayar sama dengan total order. Tanpa ini, webhook
+	// tervalidasi signature tapi dengan gross_amount buatan sendiri bisa mengubah status.
 	gross, parseErr := parseGrossAmount(payload.GrossAmount)
 	if parseErr != nil {
 		return resData, http.StatusBadRequest, fmt.Errorf("invalid gross amount: %w", parseErr)
@@ -51,19 +57,69 @@ func (s *service) HandleNotification(payload midtransProvider.NotificationPayloa
 		return resData, http.StatusBadRequest, fmt.Errorf("gross amount mismatch with order total")
 	}
 
-	if err := s.orderRepo.UpdateStatus(payload.OrderID, newStatus); err != nil {
-		return resData, http.StatusInternalServerError, fmt.Errorf("gagal memperbarui status order: %w", err)
+	// Notifikasi refund tidak boleh menaikkan status order menjadi CANCELLED diam-diam;
+	// itu harus lewat flow refund yang diaudit.
+	if payload.IsRefund() {
+		resData.Status = existingOrder.Status
+		resData.Processed = true
+		log.Printf("order %s menerima notifikasi refund, menunggu proses refund terotorisasi", existingOrder.ID)
+		return resData, http.StatusOK, nil
+	}
+
+	if err := s.applyPaymentStatusChange(existingOrder, newStatus); err != nil {
+		return resData, http.StatusInternalServerError, err
 	}
 
 	resData.Status = newStatus
 	resData.Processed = true
 
-	// kirim email notifikasi setelah pembayaran sukses
-	if newStatus == "PAID" {
+	// Kirim email hanya saat transisi benar-benar terjadi, bukan saat notifikasi duplikat.
+	if newStatus == common.OrderStatusPaid {
 		s.enqueuePaymentSuccessEmail(existingOrder)
 	}
 
 	return resData, http.StatusOK, nil
+}
+
+func isTerminalStatus(status string) bool {
+	switch status {
+	case common.OrderStatusPaid, common.OrderStatusCompleted,
+		common.OrderStatusCancelled, common.OrderStatusExpired, common.OrderStatusRefunded:
+		return true
+	}
+	return false
+}
+
+// applyPaymentStatusChange menyimpan status pembayaran. Berbeda dari pembatalan,
+// pembayaran tidak mengembalikan stok karena stok memang dialokasikan untuk pesanan ini.
+func (s *service) applyPaymentStatusChange(existing order.Order, newStatus string) error {
+	return s.txManager.Execute(func(tx *gorm.DB) error {
+		txOrderRepo := s.orderRepo.WithTx(tx)
+
+		affected, err := txOrderRepo.UpdateStatusFrom(existing.ID, existing.Status, newStatus)
+		if err != nil {
+			return fmt.Errorf("gagal memperbarui status order: %w", err)
+		}
+		if affected == 0 {
+			// notifikasi duplikat, status sudah diubah request sebelumnya
+			return nil
+		}
+
+		if err := txOrderRepo.UpdateStatusTimestamps(existing.ID, newStatus); err != nil {
+			return fmt.Errorf("gagal memperbarui timestamp status: %w", err)
+		}
+
+		from := existing.Status
+		note := "notifikasi pembayaran " + newStatus
+		return txOrderRepo.CreateStatusHistory(order.OrderStatusHistory{
+			OrderID:    existing.ID,
+			FromStatus: &from,
+			ToStatus:   newStatus,
+			ActorRole:  optionalString("payment_gateway"),
+			Note:       &note,
+			CreatedAt:  time.Now(),
+		})
+	})
 }
 
 // enqueuePaymentSuccessEmail mengirim email invoice secara async melalui Asynq

@@ -15,7 +15,10 @@ import (
 	reviewRepo "website-api/repository/review"
 	userRepo "website-api/repository/user"
 	userAddressRepo "website-api/repository/user_address"
+	voucherRepo "website-api/repository/voucher"
+	settlementRepo "website-api/repository/settlement"
 	orderService "website-api/service/order"
+	settlementService "website-api/service/settlement"
 	midtransProvider "website-api/third-party/provider/midtrans"
 	rajaongkirProvider "website-api/third-party/provider/rajaongkir"
 	"website-api/task"
@@ -56,6 +59,9 @@ func StartWorker() {
 	// DB dibuka saat task dieksekusi agar worker tetap ringan.
 	mux.HandleFunc(task.TypeCancelExpiredOrders, handleCancelExpiredOrders)
 
+	// Rekonsiliasi pembayaran untuk order yang webhook-nya tidak pernah sampai.
+	mux.HandleFunc(task.TypeReconcilePayments, handleReconcilePayments)
+
 	// Scheduler untuk menjalankan auto-cancel order expired secara periodik.
 	scheduler := asynq.NewScheduler(redisOpt, &asynq.SchedulerOpts{})
 	cancelTask, err := task.NewCancelExpiredOrdersTask()
@@ -65,6 +71,15 @@ func StartWorker() {
 	_, err = scheduler.Register("*/5 * * * *", cancelTask)
 	if err != nil {
 		log.Fatalf("failed to register cancel expired orders scheduler: %v", err)
+	}
+
+	// Rekonsiliasi berjalan lebih jarang karena setiap pemanggilan memakai kuota API provider.
+	reconcileTask, err := task.NewReconcilePaymentsTask()
+	if err != nil {
+		log.Fatalf("failed to create reconcile payments task: %v", err)
+	}
+	if _, err = scheduler.Register("*/2 * * * *", reconcileTask); err != nil {
+		log.Fatalf("failed to register reconcile payments scheduler: %v", err)
 	}
 
 	if err := scheduler.Start(); err != nil {
@@ -78,11 +93,46 @@ func StartWorker() {
 }
 
 func handleCancelExpiredOrders(ctx context.Context, t *asynq.Task) error {
-	db, err := database.Open()
+	svc, cleanup, err := newOrderService()
 	if err != nil {
 		return err
 	}
-	defer db.SqlDb.Close()
+	defer cleanup()
+
+	if _, err = svc.CancelExpiredOrders(); err != nil {
+		return err
+	}
+
+	log.Printf("cancel expired orders task finished at %s", time.Now().Format(time.RFC3339))
+	return nil
+}
+
+func handleReconcilePayments(ctx context.Context, t *asynq.Task) error {
+	svc, cleanup, err := newOrderService()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
+	updated, err := svc.ReconcilePayments()
+	if err != nil {
+		return err
+	}
+
+	if updated > 0 {
+		log.Printf("reconcile payments: %d order diperbarui pada %s", updated, time.Now().Format(time.RFC3339))
+	}
+	return nil
+}
+
+// newOrderService menyusun order service dengan koneksi database baru.
+// Koneksi dibuka per-task supaya worker utama tidak memegang koneksi database
+// sepanjang waktu tidur.
+func newOrderService() (orderService.IService, func(), error) {
+	db, err := database.Open()
+	if err != nil {
+		return nil, func() {}, err
+	}
 
 	svc := orderService.NewService(
 		productRepo.NewRepo(db.GormDb),
@@ -92,17 +142,12 @@ func handleCancelExpiredOrders(ctx context.Context, t *asynq.Task) error {
 		userAddressRepo.NewRepo(db.GormDb),
 		merchantRepo.NewRepo(db.GormDb),
 		reviewRepo.NewRepo(db.GormDb),
+		voucherRepo.NewRepo(db.GormDb),
+		settlementService.NewService(settlementRepo.NewRepo(db.GormDb)),
 		transaction.NewTransactionManager(db.GormDb),
 		midtransProvider.NewClient(),
 		rajaongkirProvider.NewClient(),
 		NewRedisClient(),
 	)
-
-	_, err = svc.CancelExpiredOrders()
-	if err != nil {
-		return err
-	}
-
-	log.Printf("cancel expired orders task finished at %s", time.Now().Format(time.RFC3339))
-	return nil
+	return svc, func() { db.SqlDb.Close() }, nil
 }

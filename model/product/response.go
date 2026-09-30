@@ -5,6 +5,7 @@ type (
 		Id           string  `json:"id"`
 		Name         string  `json:"name"`
 		Slug         string  `json:"slug"`
+		Status       string  `json:"status"`
 		BrandId      string  `json:"brand_id"`
 		BrandName    string  `json:"brand_name"`
 		MerchantId   string  `json:"merchant_id"`

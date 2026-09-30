@@ -2,12 +2,14 @@ package order
 
 type (
 	CheckoutRequest struct {
-		UserID        string         `json:"user_id"`
+		UserID        string         `json:"-"`
 		AddressID     string         `binding:"required" json:"address_id"`
 		PaymentMethod string         `binding:"required" json:"payment_method"`
 		ShippingFee   float64        `binding:"required" json:"shipping_fee"`
-		Items         []CheckoutItem `json:"items"`
+		Items         []CheckoutItem `binding:"required,min=1" json:"items"`
 		Shippings     []ShippingsReq `json:"shippings"`
+		VoucherCode   string         `json:"voucher_code"`
+		Note          string         `json:"note"`
 	}
 
 	ShippingsReq struct {
@@ -36,5 +38,6 @@ type (
 
 	UpdateOrderStatusReq struct {
 		Status string `binding:"required,oneof=PENDING PAID PROCESSING SHIPPED COMPLETED CANCELLED EXPIRED" json:"status"`
+		Note   string `json:"note"`
 	}
 )

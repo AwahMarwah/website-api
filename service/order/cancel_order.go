@@ -6,10 +6,12 @@ import (
 	"net/http"
 
 	"gorm.io/gorm"
+
+	"website-api/common"
 )
 
-// CancelOrder membatalkan order PENDING oleh user sendiri
-func (s *service) CancelOrder(orderID, userID string) (int, error) {
+// CancelOrder membatalkan order PENDING oleh user sendiri.
+func (s *service) CancelOrder(orderID, userID, roleName string) (int, error) {
 	existing, err := s.orderRepo.FindByID(orderID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -23,12 +25,10 @@ func (s *service) CancelOrder(orderID, userID string) (int, error) {
 		return http.StatusForbidden, fmt.Errorf("forbidden")
 	}
 
-	if existing.Status != "PENDING" {
-		return http.StatusConflict, fmt.Errorf("hanya order PENDING yang dapat dibatalkan")
+	if existing.Status != common.OrderStatusPending {
+		return http.StatusConflict, fmt.Errorf("hanya order %s yang dapat dibatalkan", common.OrderStatusPending)
 	}
 
-	if err := s.orderRepo.UpdateStatus(orderID, "CANCELLED"); err != nil {
-		return http.StatusInternalServerError, fmt.Errorf("gagal membatalkan order: %w", err)
-	}
-	return http.StatusOK, nil
+	actor := actorInfo{ID: &userID, Role: &roleName}
+	return s.cancelAndRestoreStock(orderID, common.OrderStatusCancelled, actor, "dibatalkan oleh pembeli")
 }

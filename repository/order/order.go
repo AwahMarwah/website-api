@@ -13,12 +13,23 @@ type (
 		FindByIDWithItems(id string) (order.Order, []order.OrderItem, error)
 		FindByUserID(userID string, status string, limit, offset int) ([]order.Order, int64, error)
 		FindAll(status string, limit, offset int) ([]order.Order, int64, error)
+		FindByMerchantID(merchantID, status string, limit, offset int) ([]order.Order, int64, error)
+		FindItemsByOrderAndMerchant(orderID, merchantID string) ([]order.OrderItem, error)
+		MerchantOwnsOrder(orderID, merchantID string) (bool, error)
+		SummarizeByMerchant(merchantID string) *gorm.DB
 		Update(order.Order) error
 		UpdateStatus(id, status string) error
+		UpdateStatusFrom(id, fromStatus, toStatus string) (int64, error)
+		UpdateStatusTimestamps(id, status string) error
 		UpdatePaymentInfo(id string, values map[string]interface{}) error
 		CreateMerchantShipping(shipping *order.OrderMerchantShipping) error
+		FindMerchantShippingsByOrder(orderID string) ([]order.OrderMerchantShipping, error)
 		HasCompletedOrderForProduct(userID, productID string) (bool, error)
 		FindExpiredPending(now time.Time) ([]order.Order, error)
+		FindPendingForReconciliation(limit int) ([]order.Order, error)
+		RestoreStockForOrder(orderID string) (int64, error)
+		CreateStatusHistory(history order.OrderStatusHistory) error
+		FindStatusHistories(orderID string) ([]order.OrderStatusHistory, error)
 		WithTx(tx *gorm.DB) IRepo
 	}
 

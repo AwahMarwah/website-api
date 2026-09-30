@@ -1,22 +1,19 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"website-api/library/response"
 )
 
 func SuperAdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		role := c.GetString("role_name")
-
-		fmt.Println(role, "ini role nya")
-
-		if role != "super_admin" {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"message": "only super admin can access this resource",
-			})
+		if c.GetString("role_name") != "super_admin" {
+			// Pakai library/response supaya bentuk error konsisten dengan handler
+			// yang lain; AbortWithStatusJSON menghasilkan bentuk JSON yang beda.
+			response.Error(c, http.StatusForbidden, "only super admin can access this resource")
+			c.Abort()
 			return
 		}
 

@@ -44,3 +44,21 @@ type PaymentLinkResponse struct {
 	URL       string `json:"url"`
 	PaymentID string `json:"payment_id"`
 }
+
+// RefundRequest request pengembalian dana ke Midtrans.
+// RefundAmount adalah nominal refund, bukan sisa yang masih bisa di-refund.
+// https://docs.midtrans.com/reference/refund-transaction
+type RefundRequest struct {
+	TransactionStatus string `json:"transaction_status"`
+	RefundAmount      int64  `json:"refund_amount,omitempty"`
+	Reason            string `json:"reason,omitempty"`
+}
+
+type RefundResponse struct {
+	RefundID      string `json:"refund_id"`
+	OrderID       string `json:"order_id"`
+	Status        string `json:"status"`
+	TransactionID string `json:"transaction_id"`
+	RefundAmount  int64  `json:"refund_amount"`
+	Message       string `json:"message"`
+}

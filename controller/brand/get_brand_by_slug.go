@@ -12,10 +12,12 @@ func (c *controller) GetBrandBySlug(ctx *gin.Context) {
 	var reqBody brandModel.FilterBrandReq
 	if err := ctx.ShouldBindUri(&reqBody); err != nil {
 		response.Error(ctx, http.StatusBadRequest, err.Error())
+		return
 	}
 	resData, err := c.brandService.GetBrandBySlug(&reqBody)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
+		return
 	}
 	response.Success(ctx, http.StatusOK, "", resData)
 }

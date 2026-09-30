@@ -13,12 +13,15 @@ import (
 	"website-api/controller/order"
 	permissionController "website-api/controller/permission"
 	"website-api/controller/product"
+	refundController "website-api/controller/refund"
 	reviewController "website-api/controller/review"
 	"website-api/controller/role"
+	settlementController "website-api/controller/settlement"
 	shippingController "website-api/controller/shipping"
 	uploadController "website-api/controller/upload"
 	"website-api/controller/user"
 	userAddressController "website-api/controller/user_address"
+	voucherController "website-api/controller/voucher"
 	"website-api/database"
 	"website-api/middleware"
 	"website-api/third-party/provider/minio"
@@ -178,6 +181,7 @@ categoryController := category.NewController(db.GormDb)
 	}
 
 	orderController := order.NewController(db.GormDb)
+	refundCtl := refundController.NewController(db.GormDb)
 	orderGroup := router.Group("/order")
 	{
 		orderGroup.POST("", middleware.AuthMiddleware(db.GormDb), orderController.Checkout)
@@ -185,6 +189,7 @@ categoryController := category.NewController(db.GormDb)
 		orderGroup.GET("/:id", middleware.AuthMiddleware(db.GormDb), orderController.Detail)
 		orderGroup.POST("/:id/payment-link", middleware.AuthMiddleware(db.GormDb), orderController.CreatePaymentLink)
 		orderGroup.PATCH("/:id/cancel", middleware.AuthMiddleware(db.GormDb), orderController.CancelOrder)
+		orderGroup.POST("/:id/refund", middleware.AuthMiddleware(db.GormDb), refundCtl.Request)
 		orderGroup.POST("/notification", orderController.HandleNotification)
 	}
 
@@ -241,6 +246,66 @@ categoryController := category.NewController(db.GormDb)
 
 	// Admin approve merchant
 	router.PATCH("/admin/merchant/:id/approve", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"), merchantCtl.Approve)
+
+	// Seller panel. Cakupannya merchant + admin/super_admin supaya tim internal
+	// bisa ikut memakai endpoint yang sama untuk operasional. Cakupan data tetap
+	// dijaga di layer service lewat merchant_id yang berasal dari session.
+	sellerRole := []string{"merchant", "super_admin", "admin"}
+	sellerGroup := router.Group("/merchant", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole(sellerRole...))
+	{
+		sellerGroup.GET("/products", merchantCtl.ListProducts)
+		sellerGroup.POST("/products", merchantCtl.CreateProduct)
+		sellerGroup.GET("/products/:id", merchantCtl.GetProduct)
+		sellerGroup.PUT("/products/:id", merchantCtl.UpdateProduct)
+		sellerGroup.DELETE("/products/:id", merchantCtl.DeleteProduct)
+
+		sellerGroup.GET("/products/:id/variants", merchantCtl.ListVariants)
+		sellerGroup.POST("/products/:id/variants", merchantCtl.CreateVariant)
+		sellerGroup.PUT("/variants/:variantId", merchantCtl.UpdateVariant)
+		sellerGroup.DELETE("/variants/:variantId", merchantCtl.DeleteVariant)
+
+		sellerGroup.GET("/orders", merchantCtl.ListOrders)
+		sellerGroup.GET("/orders/:id", merchantCtl.GetOrder)
+		sellerGroup.GET("/stats", merchantCtl.Stats)
+	}
+
+	settlementCtl := settlementController.NewController(db.GormDb)
+	{
+		sellerGroup.GET("/ledger", settlementCtl.ListLedgers)
+		sellerGroup.GET("/balance", settlementCtl.Balance)
+		sellerGroup.POST("/payouts", settlementCtl.RequestPayout)
+	}
+
+	// Voucher: pratinjau untuk pembeli, CRUD untuk admin.
+	voucherCtl := voucherController.NewController(db.GormDb)
+	adminVoucherGroup := router.Group("/admin/vouchers", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin"))
+	{
+		adminVoucherGroup.GET("", voucherCtl.List)
+		adminVoucherGroup.POST("", voucherCtl.Create)
+		adminVoucherGroup.GET("/:id", voucherCtl.Detail)
+		adminVoucherGroup.PUT("/:id", voucherCtl.Update)
+		adminVoucherGroup.DELETE("/:id", voucherCtl.Delete)
+	}
+	router.GET("/voucher/validate", middleware.AuthMiddleware(db.GormDb), voucherCtl.Validate)
+
+	// Payout processing: khusus finance.
+	financeGroup := router.Group("/admin/payouts", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin", "finance"))
+	{
+		financeGroup.GET("", settlementCtl.ListPayouts)
+		financeGroup.PATCH("/:id/approve", settlementCtl.ApprovePayout)
+		financeGroup.PATCH("/:id/paid", settlementCtl.MarkPaid)
+		financeGroup.PATCH("/:id/reject", settlementCtl.RejectPayout)
+	}
+
+	// Refund: diajukan pembeli, disetujui dan diproses finance.
+	adminRefundGroup := router.Group("/admin/refunds", middleware.AuthMiddleware(db.GormDb), middleware.RequireRole("super_admin", "admin", "finance"))
+	{
+		adminRefundGroup.GET("", refundCtl.List)
+		adminRefundGroup.GET("/:id", refundCtl.Detail)
+		adminRefundGroup.PATCH("/:id/approve", refundCtl.Approve)
+		adminRefundGroup.PATCH("/:id/reject", refundCtl.Reject)
+		adminRefundGroup.POST("/:id/process", refundCtl.Process)
+	}
 
 	shippingCtl := shippingController.NewController(db.GormDb)
 	router.POST("/shipping/cost", middleware.AuthMiddleware(db.GormDb), shippingCtl.Cost)

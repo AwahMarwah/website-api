@@ -18,6 +18,7 @@ func (c *controller) GetCart(ctx *gin.Context) {
 	resData, statusCode, err := c.cartService.GetCartByUserID(userInfo.UserID)
 	if err != nil {
 		response.Error(ctx, statusCode, err.Error())
+		return
 	}
 
 	response.Success(ctx, http.StatusOK, "", resData)

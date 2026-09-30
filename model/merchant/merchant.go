@@ -11,6 +11,8 @@ type Merchant struct {
 	Address       string
 	IsActive      bool
 	UserID        string
-	CreatedAt     time.Time
-	UpdatedAt     *time.Time
+	// CommissionRateBP dalam basis points: 1000 = 10%.
+	CommissionRateBP int
+	CreatedAt        time.Time
+	UpdatedAt        *time.Time
 }

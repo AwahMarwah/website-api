@@ -12,6 +12,8 @@ type Provider interface {
 	GetTransactionStatus(orderID string) (*coreapi.TransactionStatusResponse, error)
 	// CreatePaymentLink membuat payment link untuk dibagikan
 	CreatePaymentLink(req PaymentLinkRequest) (*PaymentLinkResponse, error)
+	// Refund mengembalikan dana ke pembeli untuk order yang sudah dibayar
+	Refund(orderID, transactionStatus, reason string, amount int64) (*RefundResponse, error)
 }
 
 // ProviderLogger menyediakan akses helper yang berkaitan dengan provider

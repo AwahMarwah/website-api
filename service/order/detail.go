@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"website-api/model/order"
 
 	"gorm.io/gorm"
+
+	"website-api/model/order"
 )
 
 func (s *service) Detail(id, userID, roleName string) (resData order.OrderResponse, statusCode int, err error) {
@@ -31,6 +32,30 @@ func (s *service) Detail(id, userID, roleName string) (resData order.OrderRespon
 			return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil status review: %w", err)
 		}
 	}
+
 	resData = s.toOrderResponse(o, reviewed, userID, checkReviewed)
+
+	// Ongkir per seller ditampilkan di detail supaya pembeli tahu paket mana
+	// yang dikirim merchant mana.
+	shippings, err := s.orderRepo.FindMerchantShippingsByOrder(id)
+	if err != nil {
+		return resData, http.StatusInternalServerError, fmt.Errorf("gagal mengambil data pengiriman: %w", err)
+	}
+	resData.Shippings = make([]order.OrderMerchantShippingResponse, 0, len(shippings))
+	for _, shp := range shippings {
+		res := order.OrderMerchantShippingResponse{
+			MerchantID: shp.MerchantID,
+			Courier:    shp.Courier,
+			Service:    shp.Service,
+			Cost:       shp.Cost,
+			Etd:        shp.Etd,
+			WeightGram: shp.WeightGram,
+		}
+		if shp.Merchant != nil {
+			res.MerchantName = shp.Merchant.Name
+		}
+		resData.Shippings = append(resData.Shippings, res)
+	}
+
 	return resData, http.StatusOK, nil
 }

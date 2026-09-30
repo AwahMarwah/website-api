@@ -9,8 +9,13 @@ import (
 type (
 	IRepo interface {
 		FindByID(id string) (productVariant product_variant.ProductVariant, err error)
+		FindByIDForUpdate(id string) (productVariant product_variant.ProductVariant, err error)
 		FindByProductID(productID string) (productVariants []product_variant.ProductVariant, err error)
+		FindMerchantIDsByVariantIDs(variantIDs []string) ([]string, error)
 		Update(productVariant product_variant.ProductVariant) error
+		Create(productVariant product_variant.ProductVariant) error
+		UpdateFields(id string, values map[string]any) error
+		Restock(variantID string, qty int) error
 		WithTx(tx *gorm.DB) IRepo
 	}
 
@@ -29,11 +34,4 @@ func (r *repo) FindByID(id string) (productVariant product_variant.ProductVarian
 
 func (r *repo) Update(productVariant product_variant.ProductVariant) error {
 	return r.db.Model(&product_variant.ProductVariant{}).Where("id = ?", productVariant.ID).Update("stock", productVariant.Stock).Error
-}
-
-func (r *repo) WithTx(tx *gorm.DB) IRepo {
-	if tx == nil {
-		return r
-	}
-	return &repo{db: tx}
 }

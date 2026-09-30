@@ -43,6 +43,21 @@ const (
 	OrderStatusCompleted  = "COMPLETED"
 	OrderStatusCancelled  = "CANCELLED"
 	OrderStatusExpired    = "EXPIRED"
+	OrderStatusRefunded   = "REFUNDED"
+
+	// Product status
+	ProductStatusDraft    = "draft"
+	ProductStatusActive   = "active"
+	ProductStatusInactive = "inactive"
+
+	// Discount type voucher
+	DiscountTypePercent = "PERCENT"
+	DiscountTypeFixed   = "FIXED"
+
+	// Merchant
+	MerchantNotRegistered = "akun ini belum terdaftar sebagai merchant"
+	MerchantNotApproved   = "merchant belum disetujui admin"
+	MerchantForbidden     = "produk ini bukan milik merchant tersebut"
 
 	// Payment
 	PaymentMethodMidtrans = "midtrans"

@@ -24,6 +24,16 @@ func FilterCategory(category string) func(*gorm.DB) *gorm.DB {
 	}
 }
 
+func FilterCategorySearch(request string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if request != "" {
+			pattern := fmt.Sprintf("%%%s%%", request)
+			return db.Where("name ILIKE ?", pattern)
+		}
+		return db
+	}
+}
+
 func FilterMinPrice(min float64) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if min > 0 {

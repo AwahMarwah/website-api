@@ -20,9 +20,9 @@ type merchantSeed struct {
 }
 
 var merchants = []merchantSeed{
-	{name: "Toko Nike Sporting", slug: "toko-nike-sporting", destinationID: 17547, cityID: "3174", address: "Jl. Senayan Utara, Jakarta Selatan", productID: "prod-001"},
-	{name: "Adidas Store Bandung", slug: "adidas-store-bandung", destinationID: 4916, cityID: "3273", address: "Jl. Cihampelas, Bandung", productID: "prod-002"},
-	{name: "Uniqlo Central Java", slug: "uniqlo-central-java", destinationID: 65005, cityID: "3374", address: "Jl. Pandanaran, Semarang", productID: "prod-003"},
+	{name: "Toko Nike Sporting", slug: "toko-nike-sporting", destinationID: 17547, cityID: "3174", address: "Jl. Senayan Utara, Jakarta Selatan", productID: "prod-006"},
+	{name: "Adidas Store Bandung", slug: "adidas-store-bandung", destinationID: 4916, cityID: "3273", address: "Jl. Cihampelas, Bandung", productID: "prod-004"},
+	{name: "Uniqlo Central Java", slug: "uniqlo-central-java", destinationID: 65005, cityID: "3374", address: "Jl. Pandanaran, Semarang", productID: "prod-005"},
 }
 
 func main() {

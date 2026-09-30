@@ -37,6 +37,776 @@
                 }
             }
         },
+        "/admin/orders/{id}/status": {
+            "patch": {
+                "description": "Mengubah status order oleh admin dengan validasi transisi maju",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4. Order"
+                ],
+                "summary": "Update Order Status (Admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.UpdateOrderStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status order berhasil diubah",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/payouts": {
+            "get": {
+                "description": "Daftar pengajuan pencairan dana",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9. Settlement"
+                ],
+                "summary": "List Payouts (Finance)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "merchant_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar payout",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/payouts/{id}/approve": {
+            "patch": {
+                "description": "Menyetujui payout dan mencatat pencairan ke ledger seller",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9. Settlement"
+                ],
+                "summary": "Approve Payout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payout ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settlement.ApprovePayoutReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payout berhasil disetujui",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/payouts/{id}/paid": {
+            "patch": {
+                "description": "Menandai payout yang sudah disetujui sebagai lunas ditransfer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9. Settlement"
+                ],
+                "summary": "Mark Payout Paid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payout ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payout ditandai lunas",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/payouts/{id}/reject": {
+            "patch": {
+                "description": "Menolak pengajuan payout. Saldo seller tidak terpengaruh.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9. Settlement"
+                ],
+                "summary": "Reject Payout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payout ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settlement.ApprovePayoutReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payout berhasil ditolak",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/refunds": {
+            "get": {
+                "description": "Daftar permintaan refund",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "10. Refund"
+                ],
+                "summary": "List Refunds",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "merchant_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "order_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar refund",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/refunds/{id}": {
+            "get": {
+                "description": "Detail satu permintaan refund",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "10. Refund"
+                ],
+                "summary": "Refund Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Refund ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil detail refund",
+                        "schema": {
+                            "$ref": "#/definitions/refund.RefundResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/refunds/{id}/approve": {
+            "patch": {
+                "description": "Menyetujui permintaan refund. Dana dikembalikan saat endpoint process dipanggil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "10. Refund"
+                ],
+                "summary": "Approve Refund",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Refund ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Refund berhasil disetujui",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/refunds/{id}/process": {
+            "post": {
+                "description": "Mengirim dana kembali ke pembeli lewat payment provider, mengembalikan stok,\ndan mengoreksi saldo seller.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "10. Refund"
+                ],
+                "summary": "Process Refund",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Refund ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Refund berhasil diproses",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/refunds/{id}/reject": {
+            "patch": {
+                "description": "Menolak permintaan refund",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "10. Refund"
+                ],
+                "summary": "Reject Refund",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Refund ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/refund.ApproveRefundReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Refund berhasil ditolak",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/vouchers": {
+            "get": {
+                "description": "Daftar voucher",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "8. Voucher"
+                ],
+                "summary": "List Vouchers",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "merchant_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar voucher",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Membuat voucher atau kode promo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "8. Voucher"
+                ],
+                "summary": "Create Voucher",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/voucher.CreateVoucherReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Voucher berhasil dibuat",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/vouchers/{id}": {
+            "get": {
+                "description": "Detail satu voucher",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "8. Voucher"
+                ],
+                "summary": "Voucher Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Voucher ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil detail voucher",
+                        "schema": {
+                            "$ref": "#/definitions/voucher.VoucherResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Memperbarui voucher",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "8. Voucher"
+                ],
+                "summary": "Update Voucher",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Voucher ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/voucher.UpdateVoucherReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Voucher berhasil diperbarui",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Menonaktifkan voucher (soft delete, histori redemption tetap tersimpan)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "8. Voucher"
+                ],
+                "summary": "Delete Voucher",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Voucher ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Voucher berhasil dinonaktifkan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/content-page/faqs": {
             "get": {
                 "description": "Retrieve list information of Faqs",
@@ -369,6 +1139,709 @@
                 }
             }
         },
+        "/merchant/balance": {
+            "get": {
+                "description": "Saldo seller saat ini setelah dikurangi komisi dan payout",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9. Settlement"
+                ],
+                "summary": "Merchant Balance",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil saldo",
+                        "schema": {
+                            "$ref": "#/definitions/settlement.BalanceResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/ledger": {
+            "get": {
+                "description": "Daftar catatan keuangan milik seller (komisi, payout, refund)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9. Settlement"
+                ],
+                "summary": "Merchant Ledger",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil ledger",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/orders": {
+            "get": {
+                "description": "Daftar order yang memuat barang milik seller yang sedang login",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller List Orders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "PENDING",
+                            "PAID",
+                            "PROCESSING",
+                            "SHIPPED",
+                            "COMPLETED",
+                            "CANCELLED",
+                            "EXPIRED",
+                            "REFUNDED"
+                        ],
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar order",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/orders/{id}": {
+            "get": {
+                "description": "Detail order, dipangkas hanya ke item milik seller yang requesting",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Get Order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil detail order",
+                        "schema": {
+                            "$ref": "#/definitions/merchant.SellerOrderResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/payouts": {
+            "post": {
+                "description": "Seller mengajukan pencairan dana. Saldo baru berkurang setelah disetujui finance.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9. Settlement"
+                ],
+                "summary": "Request Payout",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/settlement.CreatePayoutReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Pengajuan payout berhasil dibuat",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/products": {
+            "get": {
+                "description": "Daftar produk milik seller yang sedang login",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller List Products",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "draft",
+                            "active",
+                            "inactive"
+                        ],
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar produk",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Membuat produk baru milik seller (status draft)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Create Product",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/merchant.CreateSellerProductReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Produk berhasil dibuat",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/products/{id}": {
+            "get": {
+                "description": "Detail satu produk milik seller",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Get Product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil detail produk",
+                        "schema": {
+                            "$ref": "#/definitions/merchant.SellerProductResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Memperbarui produk milik seller",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Update Product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/merchant.UpdateSellerProductReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produk berhasil diperbarui",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Menonaktifkan produk milik seller (soft delete)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Delete Product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produk berhasil dinonaktifkan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/products/{id}/variants": {
+            "get": {
+                "description": "Daftar variant milik satu produk milik seller",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller List Variants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar variant",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Menambah variant baru ke produk milik seller",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Create Variant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/merchant.CreateSellerVariantReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Variant berhasil dibuat",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/stats": {
+            "get": {
+                "description": "Ringkasan dashboard seller: produk, order, pendapatan, dan saldo",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Dashboard Stats",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil ringkasan",
+                        "schema": {
+                            "$ref": "#/definitions/merchant.SellerStatsResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/merchant/variants/{variantId}": {
+            "put": {
+                "description": "Memperbarui variant milik seller. Stok hanya bisa ditambah, tidak dikurangi manual.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Update Variant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Variant ID",
+                        "name": "variantId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/merchant.UpdateSellerVariantReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Variant berhasil diperbarui",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Menonaktifkan variant milik seller (soft delete)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7. Seller Panel"
+                ],
+                "summary": "Seller Delete Variant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Variant ID",
+                        "name": "variantId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Variant berhasil dinonaktifkan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/order": {
             "get": {
                 "description": "Mengambil daftar order milik user yang login",
@@ -541,6 +2014,76 @@
                         "description": "Payment link berhasil dibuat",
                         "schema": {
                             "$ref": "#/definitions/order.PaymentLinkResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}/refund": {
+            "post": {
+                "description": "MengAJUKAN refund untuk order milik sendiri. Dana belum berpindah sampai disetujui finance.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "10. Refund"
+                ],
+                "summary": "Request Refund",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/refund.CreateRefundReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Permintaan refund berhasil dibuat",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -777,6 +2320,39 @@
                     }
                 }
             }
+        },
+        "/voucher/validate": {
+            "get": {
+                "description": "Mengecek voucher terhadap nilai belanja, tanpa mengubah apa pun.\nSelalu mengembalikan 200 dengan flag valid; voucher tidak berlaku adalah jawaban normal.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "8. Voucher"
+                ],
+                "summary": "Validate Voucher",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "name": "amount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hasil validasi voucher",
+                        "schema": {
+                            "$ref": "#/definitions/voucher.ValidateVoucherResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -961,6 +2537,70 @@
                 }
             }
         },
+        "merchant.CreateSellerProductReq": {
+            "type": "object",
+            "required": [
+                "brand_id",
+                "name",
+                "sku",
+                "slug"
+            ],
+            "properties": {
+                "base_price": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "weight_gram": {
+                    "type": "integer"
+                }
+            }
+        },
+        "merchant.CreateSellerVariantReq": {
+            "type": "object",
+            "required": [
+                "price",
+                "sku",
+                "variant_name"
+            ],
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "variant_name": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
         "merchant.MerchantResponse": {
             "type": "object",
             "properties": {
@@ -969,6 +2609,9 @@
                 },
                 "city_id": {
                     "type": "string"
+                },
+                "commission_rate_bp": {
+                    "type": "integer"
                 },
                 "destination_id": {
                     "type": "integer"
@@ -987,6 +2630,254 @@
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "merchant.SellerOrderItemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_image_url": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "product_variant_id": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "subtotal": {
+                    "type": "number"
+                },
+                "total_weight_gram": {
+                    "type": "integer"
+                },
+                "variant_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "merchant.SellerOrderResponse": {
+            "type": "object",
+            "properties": {
+                "buyer_name": {
+                    "type": "string"
+                },
+                "completed_at": {
+                    "type": "string"
+                },
+                "courier": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "etd": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "item_subtotal": {
+                    "type": "number"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/merchant.SellerOrderItemResponse"
+                    }
+                },
+                "paid_at": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                },
+                "shipped_at": {
+                    "type": "string"
+                },
+                "shipping_cost": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_amount": {
+                    "type": "number"
+                }
+            }
+        },
+        "merchant.SellerProductResponse": {
+            "type": "object",
+            "properties": {
+                "base_price": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "variants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/merchant.SellerVariantResponse"
+                    }
+                },
+                "weight_gram": {
+                    "type": "integer"
+                }
+            }
+        },
+        "merchant.SellerStatsResponse": {
+            "type": "object",
+            "properties": {
+                "active_products": {
+                    "type": "integer"
+                },
+                "balance": {
+                    "type": "number"
+                },
+                "commission_earned": {
+                    "type": "number"
+                },
+                "completed_orders": {
+                    "type": "integer"
+                },
+                "draft_products": {
+                    "type": "integer"
+                },
+                "item_revenue": {
+                    "type": "number"
+                },
+                "pending_orders": {
+                    "type": "integer"
+                },
+                "processing_orders": {
+                    "type": "integer"
+                },
+                "shipped_orders": {
+                    "type": "integer"
+                },
+                "total_orders": {
+                    "type": "integer"
+                },
+                "total_products": {
+                    "type": "integer"
+                }
+            }
+        },
+        "merchant.SellerVariantResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "variant_name": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "merchant.UpdateSellerProductReq": {
+            "type": "object",
+            "properties": {
+                "base_price": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "weight_gram": {
+                    "type": "integer"
+                }
+            }
+        },
+        "merchant.UpdateSellerVariantReq": {
+            "type": "object",
+            "properties": {
+                "is_active": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "variant_name": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         },
@@ -1060,6 +2951,41 @@
                 }
             }
         },
+        "order.AddressSnapshot": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "city_id": {
+                    "type": "string"
+                },
+                "destination_id": {
+                    "type": "integer"
+                },
+                "district_id": {
+                    "type": "string"
+                },
+                "full_address": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "postal_code": {
+                    "type": "string"
+                },
+                "province_id": {
+                    "type": "string"
+                },
+                "recipient_name": {
+                    "type": "string"
+                },
+                "subdistrict_id": {
+                    "type": "string"
+                }
+            }
+        },
         "order.CheckoutItem": {
             "type": "object",
             "properties": {
@@ -1075,6 +3001,7 @@
             "type": "object",
             "required": [
                 "address_id",
+                "items",
                 "payment_method",
                 "shipping_fee"
             ],
@@ -1084,9 +3011,13 @@
                 },
                 "items": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/order.CheckoutItem"
                     }
+                },
+                "note": {
+                    "type": "string"
                 },
                 "payment_method": {
                     "type": "string"
@@ -1100,7 +3031,7 @@
                         "$ref": "#/definitions/order.ShippingsReq"
                     }
                 },
-                "user_id": {
+                "voucher_code": {
                     "type": "string"
                 }
             }
@@ -1119,6 +3050,9 @@
                 },
                 "payment_url": {
                     "type": "string"
+                },
+                "total_amount": {
+                    "type": "number"
                 }
             }
         },
@@ -1142,10 +3076,19 @@
                 "id": {
                     "type": "string"
                 },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "type": "string"
+                },
                 "price": {
                     "type": "number"
                 },
                 "product_id": {
+                    "type": "string"
+                },
+                "product_image_url": {
                     "type": "string"
                 },
                 "product_name": {
@@ -1160,8 +3103,40 @@
                 "reviewed": {
                     "type": "boolean"
                 },
+                "sku": {
+                    "type": "string"
+                },
                 "subtotal": {
                     "type": "number"
+                },
+                "variant_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.OrderMerchantShippingResponse": {
+            "type": "object",
+            "properties": {
+                "cost": {
+                    "type": "integer"
+                },
+                "courier": {
+                    "type": "string"
+                },
+                "etd": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "merchant_name": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                },
+                "weight_gram": {
+                    "type": "integer"
                 }
             }
         },
@@ -1171,8 +3146,20 @@
                 "address_id": {
                     "type": "string"
                 },
+                "address_snapshot": {
+                    "$ref": "#/definitions/order.AddressSnapshot"
+                },
+                "cancelled_at": {
+                    "type": "string"
+                },
+                "completed_at": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
                 },
                 "expired_at": {
                     "type": "string"
@@ -1186,20 +3173,61 @@
                         "$ref": "#/definitions/order.OrderItemResponse"
                     }
                 },
+                "note": {
+                    "type": "string"
+                },
+                "paid_at": {
+                    "type": "string"
+                },
                 "payment_method": {
                     "type": "string"
                 },
                 "payment_url": {
                     "type": "string"
                 },
+                "shipped_at": {
+                    "type": "string"
+                },
                 "shipping_fee": {
                     "type": "number"
+                },
+                "shippings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderMerchantShippingResponse"
+                    }
                 },
                 "status": {
                     "type": "string"
                 },
+                "status_histories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderStatusHistoryResponse"
+                    }
+                },
                 "total_amount": {
                     "type": "number"
+                }
+            }
+        },
+        "order.OrderStatusHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "actor_role": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "from_status": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "to_status": {
+                    "type": "string"
                 }
             }
         },
@@ -1225,6 +3253,29 @@
                 },
                 "service": {
                     "type": "string"
+                }
+            }
+        },
+        "order.UpdateOrderStatusReq": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "note": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "PENDING",
+                        "PAID",
+                        "PROCESSING",
+                        "SHIPPED",
+                        "COMPLETED",
+                        "CANCELLED",
+                        "EXPIRED"
+                    ]
                 }
             }
         },
@@ -1330,6 +3381,76 @@
                 }
             }
         },
+        "refund.ApproveRefundReq": {
+            "type": "object",
+            "properties": {
+                "note": {
+                    "type": "string"
+                }
+            }
+        },
+        "refund.CreateRefundReq": {
+            "type": "object",
+            "required": [
+                "amount",
+                "reason"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "refund.RefundResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "approved_by": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "failure_reason": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "provider_refund_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "requested_by": {
+                    "type": "string"
+                },
+                "restocked": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "review.CreateReviewReq": {
             "type": "object",
             "required": [
@@ -1398,6 +3519,49 @@
                             "type": "integer"
                         }
                     }
+                }
+            }
+        },
+        "settlement.ApprovePayoutReq": {
+            "type": "object",
+            "properties": {
+                "note": {
+                    "type": "string"
+                }
+            }
+        },
+        "settlement.BalanceResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "commission_rate_bp": {
+                    "type": "integer"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "pending_payout": {
+                    "type": "number"
+                }
+            }
+        },
+        "settlement.CreatePayoutReq": {
+            "type": "object",
+            "required": [
+                "amount",
+                "bank_account"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "bank_account": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
                 }
             }
         },
@@ -1495,6 +3659,170 @@
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "voucher.CreateVoucherReq": {
+            "type": "object",
+            "required": [
+                "code",
+                "type",
+                "value"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "ends_at": {
+                    "type": "string"
+                },
+                "max_discount": {
+                    "type": "number"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "min_spend": {
+                    "type": "number"
+                },
+                "per_user_limit": {
+                    "type": "integer"
+                },
+                "product_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "quota": {
+                    "type": "integer"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "PERCENT",
+                        "FIXED"
+                    ]
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "voucher.UpdateVoucherReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "ends_at": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "max_discount": {
+                    "type": "number"
+                },
+                "min_spend": {
+                    "type": "number"
+                },
+                "per_user_limit": {
+                    "type": "integer"
+                },
+                "product_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "quota": {
+                    "type": "integer"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "voucher.ValidateVoucherResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "final_amount": {
+                    "type": "number"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "voucher.VoucherResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "ends_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "max_discount": {
+                    "type": "number"
+                },
+                "merchant_id": {
+                    "type": "string"
+                },
+                "min_spend": {
+                    "type": "number"
+                },
+                "per_user_limit": {
+                    "type": "integer"
+                },
+                "quota": {
+                    "type": "integer"
+                },
+                "remaining_quota": {
+                    "type": "integer"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "used_count": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "number"
                 }
             }
         }

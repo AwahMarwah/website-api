@@ -14,21 +14,19 @@ import (
 
 func (s *service) VerifyEmail(reqBody userModel.VerifyEmailRequest) (err error) {
 	if !utils.ValidateTokenFormat(reqBody.Token) {
-		log.Printf("SECURITY: Invalid token format attempted: %s", reqBody.Token[:8]+"...")
+		log.Printf("SECURITY: Invalid token format attempted: %s", tokenPreview(reqBody.Token))
 		return fmt.Errorf(common.InvalidVerificationToken)
 	}
 
 	if err := utils.CheckVerificationRateLimit(reqBody.Token); err != nil {
-		log.Printf("SECURITY: Rate limit exceeded for token: %s", reqBody.Token[:8]+"...")
+		log.Printf("SECURITY: Rate limit exceeded for token: %s", tokenPreview(reqBody.Token))
 		return err
 	}
-
-	fmt.Println(reqBody.Token, "ini debug dari email")
 
 	user, err := s.userRepo.Take([]string{"id", "email", "verification_token", "verification_token_expired_at", "is_verified"}, &userModel.User{VerificationToken: reqBody.Token})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Printf("SECURITY: Invalid verification token attempted: %s", reqBody.Token[:8]+"...")
+			log.Printf("SECURITY: Invalid verification token attempted: %s", tokenPreview(reqBody.Token))
 			return fmt.Errorf(common.InvalidVerificationToken)
 		}
 		log.Printf("SECURITY: Database error during verification: %v", err)
@@ -36,12 +34,12 @@ func (s *service) VerifyEmail(reqBody userModel.VerifyEmailRequest) (err error) 
 	}
 
 	if user.Id == "" || user.VerificationToken == "" {
-		log.Printf("SECURITY: Empty user data for token: %s", reqBody.Token[:8]+"...")
+		log.Printf("SECURITY: Empty user data for token: %s", tokenPreview(reqBody.Token))
 		return fmt.Errorf(common.InvalidVerificationToken)
 	}
 
 	if time.Now().After(user.VerificationTokenExpiredAt) {
-		log.Printf("SECURITY: Expired token attempted: %s for user: %s", reqBody.Token[:8]+"...", user.Email)
+		log.Printf("SECURITY: Expired token attempted: %s for user: %s", tokenPreview(reqBody.Token), user.Email)
 		values := map[string]any{
 			"verification_token":            "",
 			"verification_token_expired_at": nil,
@@ -74,4 +72,13 @@ func (s *service) VerifyEmail(reqBody userModel.VerifyEmailRequest) (err error) 
 	utils.ResetVerificationRateLimit(reqBody.Token)
 
 	return nil
+}
+
+// tokenPreview mengembalikan 8 karakter awal token untuk keperluan log
+// keamanan tanpa membocorkan token penuh dan tanpa panic pada token pendek.
+func tokenPreview(token string) string {
+	if len(token) > 8 {
+		return token[:8] + "..."
+	}
+	return token
 }

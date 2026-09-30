@@ -9,9 +9,12 @@ import (
 type (
 	IRepo interface {
 		Create(reqBody *cart.CartItem) error
+		Upsert(item *cart.CartItem) error
+		SetQty(userID, variantID string, qty int) error
 		GetItemByUserID(userID string) (resData []cart.CartItemResponse, err error)
 		DeleteItems(userID string, variantIDs []string) error
 		ClearAll(userID string) error
+		WithTx(tx *gorm.DB) IRepo
 	}
 
 	repo struct {

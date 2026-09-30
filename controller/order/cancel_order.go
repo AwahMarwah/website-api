@@ -29,7 +29,7 @@ func (c *controller) CancelOrder(ctx *gin.Context) {
 		return
 	}
 
-	statusCode, err := c.orderService.CancelOrder(reqPath.Id, userInfo.UserID)
+	statusCode, err := c.orderService.CancelOrder(reqPath.Id, userInfo.UserID, userInfo.Role)
 	if err != nil {
 		response.Error(ctx, statusCode, err.Error())
 		return

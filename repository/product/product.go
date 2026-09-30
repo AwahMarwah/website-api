@@ -9,6 +9,11 @@ import (
 type (
 	IRepo interface {
 		FindByID(id string) (resData productModel.Product, err error)
+		FindCheckoutSnapshot(productID string) (resData productModel.CheckoutSnapshot, err error)
+		FindByMerchantID(merchantID, status, search, voucherID, sort string, limit, offset int) (resData []productModel.ListProductResponse, count int64, err error)
+		FindOwnedByID(id, merchantID string) (resData productModel.Product, err error)
+		CountOwnedByStatus(merchantID, status string) (int64, error)
+		CountByStatus(merchantID string) *gorm.DB
 		FindDetailByID(id string) (resData productModel.ProductDetailResponse, err error)
 		FindDetailCollections(id string) (resData productModel.Product, err error)
 		GetProduct(reqQuery *productModel.GetListProductReqQuerry) (resData []productModel.ListProductResponse, count int64, err error)

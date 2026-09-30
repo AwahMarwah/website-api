@@ -13,6 +13,7 @@ func (c *controller) GetBrand(ctx *gin.Context) {
 	var reqQuery brandModel.BrandReqQuery
 	if err := ctx.ShouldBindQuery(&reqQuery); err != nil {
 		response.Error(ctx, http.StatusBadRequest, err.Error())
+		return
 	}
 	reqQuery.Offset = pagination.Offset(&reqQuery.Limit, &reqQuery.Page)
 	resData, count, err := c.brandService.GetBrand(&reqQuery)

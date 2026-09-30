@@ -16,6 +16,7 @@ func (c *controller) Delete(ctx *gin.Context) {
 	}
 	if statusCode, err := c.roleService.Delete(&reqPath); err != nil {
 		response.Error(ctx, statusCode, err.Error())
+		return
 	}
 	response.Success(ctx, http.StatusOK, common.SuccessfullyDeleted, nil)
 

@@ -122,12 +122,58 @@ definitions:
             type: integer
         type: object
     type: object
+  merchant.CreateSellerProductReq:
+    properties:
+      base_price:
+        type: number
+      brand_id:
+        type: string
+      categories:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      name:
+        type: string
+      sku:
+        type: string
+      slug:
+        type: string
+      weight_gram:
+        type: integer
+    required:
+    - brand_id
+    - name
+    - sku
+    - slug
+    type: object
+  merchant.CreateSellerVariantReq:
+    properties:
+      price:
+        type: number
+      sku:
+        type: string
+      stock:
+        minimum: 0
+        type: integer
+      variant_name:
+        type: string
+      weight:
+        type: number
+    required:
+    - price
+    - sku
+    - variant_name
+    type: object
   merchant.MerchantResponse:
     properties:
       address:
         type: string
       city_id:
         type: string
+      commission_rate_bp:
+        type: integer
       destination_id:
         type: integer
       id:
@@ -140,6 +186,169 @@ definitions:
         type: string
       user_id:
         type: string
+    type: object
+  merchant.SellerOrderItemResponse:
+    properties:
+      id:
+        type: string
+      price:
+        type: number
+      product_id:
+        type: string
+      product_image_url:
+        type: string
+      product_name:
+        type: string
+      product_variant_id:
+        type: string
+      qty:
+        type: integer
+      sku:
+        type: string
+      subtotal:
+        type: number
+      total_weight_gram:
+        type: integer
+      variant_name:
+        type: string
+    type: object
+  merchant.SellerOrderResponse:
+    properties:
+      buyer_name:
+        type: string
+      completed_at:
+        type: string
+      courier:
+        type: string
+      created_at:
+        type: string
+      etd:
+        type: string
+      id:
+        type: string
+      item_subtotal:
+        type: number
+      items:
+        items:
+          $ref: '#/definitions/merchant.SellerOrderItemResponse'
+        type: array
+      paid_at:
+        type: string
+      service:
+        type: string
+      shipped_at:
+        type: string
+      shipping_cost:
+        type: integer
+      status:
+        type: string
+      total_amount:
+        type: number
+    type: object
+  merchant.SellerProductResponse:
+    properties:
+      base_price:
+        type: number
+      brand_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      status:
+        type: string
+      thumbnail:
+        type: string
+      updated_at:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/merchant.SellerVariantResponse'
+        type: array
+      weight_gram:
+        type: integer
+    type: object
+  merchant.SellerStatsResponse:
+    properties:
+      active_products:
+        type: integer
+      balance:
+        type: number
+      commission_earned:
+        type: number
+      completed_orders:
+        type: integer
+      draft_products:
+        type: integer
+      item_revenue:
+        type: number
+      pending_orders:
+        type: integer
+      processing_orders:
+        type: integer
+      shipped_orders:
+        type: integer
+      total_orders:
+        type: integer
+      total_products:
+        type: integer
+    type: object
+  merchant.SellerVariantResponse:
+    properties:
+      id:
+        type: string
+      is_active:
+        type: boolean
+      price:
+        type: number
+      sku:
+        type: string
+      stock:
+        type: integer
+      variant_name:
+        type: string
+      weight:
+        type: number
+    type: object
+  merchant.UpdateSellerProductReq:
+    properties:
+      base_price:
+        type: number
+      brand_id:
+        type: string
+      categories:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      weight_gram:
+        type: integer
+    type: object
+  merchant.UpdateSellerVariantReq:
+    properties:
+      is_active:
+        type: boolean
+      price:
+        type: number
+      sku:
+        type: string
+      stock:
+        type: integer
+      variant_name:
+        type: string
+      weight:
+        type: number
     type: object
   midtrans.NotificationPayload:
     properties:
@@ -187,6 +396,29 @@ definitions:
       va_number:
         type: string
     type: object
+  order.AddressSnapshot:
+    properties:
+      city:
+        type: string
+      city_id:
+        type: string
+      destination_id:
+        type: integer
+      district_id:
+        type: string
+      full_address:
+        type: string
+      phone_number:
+        type: string
+      postal_code:
+        type: string
+      province_id:
+        type: string
+      recipient_name:
+        type: string
+      subdistrict_id:
+        type: string
+    type: object
   order.CheckoutItem:
     properties:
       qty:
@@ -201,7 +433,10 @@ definitions:
       items:
         items:
           $ref: '#/definitions/order.CheckoutItem'
+        minItems: 1
         type: array
+      note:
+        type: string
       payment_method:
         type: string
       shipping_fee:
@@ -210,10 +445,11 @@ definitions:
         items:
           $ref: '#/definitions/order.ShippingsReq'
         type: array
-      user_id:
+      voucher_code:
         type: string
     required:
     - address_id
+    - items
     - payment_method
     - shipping_fee
     type: object
@@ -227,6 +463,8 @@ definitions:
         type: string
       payment_url:
         type: string
+      total_amount:
+        type: number
     type: object
   order.NotificationResponse:
     properties:
@@ -241,9 +479,15 @@ definitions:
     properties:
       id:
         type: string
+      merchant_id:
+        type: string
+      merchant_name:
+        type: string
       price:
         type: number
       product_id:
+        type: string
+      product_image_url:
         type: string
       product_name:
         type: string
@@ -253,15 +497,44 @@ definitions:
         type: integer
       reviewed:
         type: boolean
+      sku:
+        type: string
       subtotal:
         type: number
+      variant_name:
+        type: string
+    type: object
+  order.OrderMerchantShippingResponse:
+    properties:
+      cost:
+        type: integer
+      courier:
+        type: string
+      etd:
+        type: string
+      merchant_id:
+        type: string
+      merchant_name:
+        type: string
+      service:
+        type: string
+      weight_gram:
+        type: integer
     type: object
   order.OrderResponse:
     properties:
       address_id:
         type: string
+      address_snapshot:
+        $ref: '#/definitions/order.AddressSnapshot'
+      cancelled_at:
+        type: string
+      completed_at:
+        type: string
       created_at:
         type: string
+      discount_amount:
+        type: number
       expired_at:
         type: string
       id:
@@ -270,16 +543,43 @@ definitions:
         items:
           $ref: '#/definitions/order.OrderItemResponse'
         type: array
+      note:
+        type: string
+      paid_at:
+        type: string
       payment_method:
         type: string
       payment_url:
         type: string
+      shipped_at:
+        type: string
       shipping_fee:
         type: number
+      shippings:
+        items:
+          $ref: '#/definitions/order.OrderMerchantShippingResponse'
+        type: array
       status:
         type: string
+      status_histories:
+        items:
+          $ref: '#/definitions/order.OrderStatusHistoryResponse'
+        type: array
       total_amount:
         type: number
+    type: object
+  order.OrderStatusHistoryResponse:
+    properties:
+      actor_role:
+        type: string
+      created_at:
+        type: string
+      from_status:
+        type: string
+      note:
+        type: string
+      to_status:
+        type: string
     type: object
   order.PaymentLinkResponse:
     properties:
@@ -296,6 +596,23 @@ definitions:
         type: string
       service:
         type: string
+    type: object
+  order.UpdateOrderStatusReq:
+    properties:
+      note:
+        type: string
+      status:
+        enum:
+        - PENDING
+        - PAID
+        - PROCESSING
+        - SHIPPED
+        - COMPLETED
+        - CANCELLED
+        - EXPIRED
+        type: string
+    required:
+    - status
     type: object
   product.ImageResponse:
     properties:
@@ -364,6 +681,52 @@ definitions:
       weight:
         type: number
     type: object
+  refund.ApproveRefundReq:
+    properties:
+      note:
+        type: string
+    type: object
+  refund.CreateRefundReq:
+    properties:
+      amount:
+        type: number
+      reason:
+        type: string
+    required:
+    - amount
+    - reason
+    type: object
+  refund.RefundResponse:
+    properties:
+      amount:
+        type: number
+      approved_by:
+        type: string
+      created_at:
+        type: string
+      failure_reason:
+        type: string
+      id:
+        type: string
+      merchant_id:
+        type: string
+      order_id:
+        type: string
+      provider:
+        type: string
+      provider_refund_id:
+        type: string
+      reason:
+        type: string
+      requested_by:
+        type: string
+      restocked:
+        type: boolean
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
   review.CreateReviewReq:
     properties:
       comment:
@@ -410,6 +773,34 @@ definitions:
           total:
             type: integer
         type: object
+    type: object
+  settlement.ApprovePayoutReq:
+    properties:
+      note:
+        type: string
+    type: object
+  settlement.BalanceResponse:
+    properties:
+      balance:
+        type: number
+      commission_rate_bp:
+        type: integer
+      merchant_id:
+        type: string
+      pending_payout:
+        type: number
+    type: object
+  settlement.CreatePayoutReq:
+    properties:
+      amount:
+        type: number
+      bank_account:
+        type: string
+      note:
+        type: string
+    required:
+    - amount
+    - bank_account
     type: object
   shipping.MerchantShipping:
     properties:
@@ -475,6 +866,115 @@ definitions:
       url:
         type: string
     type: object
+  voucher.CreateVoucherReq:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      ends_at:
+        type: string
+      max_discount:
+        type: number
+      merchant_id:
+        type: string
+      min_spend:
+        type: number
+      per_user_limit:
+        type: integer
+      product_ids:
+        items:
+          type: string
+        type: array
+      quota:
+        type: integer
+      starts_at:
+        type: string
+      type:
+        enum:
+        - PERCENT
+        - FIXED
+        type: string
+      value:
+        type: number
+    required:
+    - code
+    - type
+    - value
+    type: object
+  voucher.UpdateVoucherReq:
+    properties:
+      description:
+        type: string
+      ends_at:
+        type: string
+      is_active:
+        type: boolean
+      max_discount:
+        type: number
+      min_spend:
+        type: number
+      per_user_limit:
+        type: integer
+      product_ids:
+        items:
+          type: string
+        type: array
+      quota:
+        type: integer
+      starts_at:
+        type: string
+      value:
+        type: number
+    type: object
+  voucher.ValidateVoucherResponse:
+    properties:
+      code:
+        type: string
+      discount_amount:
+        type: number
+      final_amount:
+        type: number
+      message:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  voucher.VoucherResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      ends_at:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      max_discount:
+        type: number
+      merchant_id:
+        type: string
+      min_spend:
+        type: number
+      per_user_limit:
+        type: integer
+      quota:
+        type: integer
+      remaining_quota:
+        type: integer
+      starts_at:
+        type: string
+      type:
+        type: string
+      used_count:
+        type: integer
+      value:
+        type: number
+    type: object
 host: localhost:8085
 info:
   contact: {}
@@ -500,6 +1000,525 @@ paths:
       summary: List Orders (Admin)
       tags:
       - 4. Order
+  /admin/orders/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Mengubah status order oleh admin dengan validasi transisi maju
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/order.UpdateOrderStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status order berhasil diubah
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update Order Status (Admin)
+      tags:
+      - 4. Order
+  /admin/payouts:
+    get:
+      description: Daftar pengajuan pencairan dana
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: merchant_id
+        type: string
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar payout
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List Payouts (Finance)
+      tags:
+      - 9. Settlement
+  /admin/payouts/{id}/approve:
+    patch:
+      consumes:
+      - application/json
+      description: Menyetujui payout dan mencatat pencairan ke ledger seller
+      parameters:
+      - description: Payout ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/settlement.ApprovePayoutReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payout berhasil disetujui
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Approve Payout
+      tags:
+      - 9. Settlement
+  /admin/payouts/{id}/paid:
+    patch:
+      description: Menandai payout yang sudah disetujui sebagai lunas ditransfer
+      parameters:
+      - description: Payout ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payout ditandai lunas
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mark Payout Paid
+      tags:
+      - 9. Settlement
+  /admin/payouts/{id}/reject:
+    patch:
+      consumes:
+      - application/json
+      description: Menolak pengajuan payout. Saldo seller tidak terpengaruh.
+      parameters:
+      - description: Payout ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/settlement.ApprovePayoutReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payout berhasil ditolak
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reject Payout
+      tags:
+      - 9. Settlement
+  /admin/refunds:
+    get:
+      description: Daftar permintaan refund
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: merchant_id
+        type: string
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: order_id
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar refund
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List Refunds
+      tags:
+      - 10. Refund
+  /admin/refunds/{id}:
+    get:
+      description: Detail satu permintaan refund
+      parameters:
+      - description: Refund ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil detail refund
+          schema:
+            $ref: '#/definitions/refund.RefundResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Refund Detail
+      tags:
+      - 10. Refund
+  /admin/refunds/{id}/approve:
+    patch:
+      consumes:
+      - application/json
+      description: Menyetujui permintaan refund. Dana dikembalikan saat endpoint process
+        dipanggil.
+      parameters:
+      - description: Refund ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Refund berhasil disetujui
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Approve Refund
+      tags:
+      - 10. Refund
+  /admin/refunds/{id}/process:
+    post:
+      description: |-
+        Mengirim dana kembali ke pembeli lewat payment provider, mengembalikan stok,
+        dan mengoreksi saldo seller.
+      parameters:
+      - description: Refund ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Refund berhasil diproses
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Process Refund
+      tags:
+      - 10. Refund
+  /admin/refunds/{id}/reject:
+    patch:
+      consumes:
+      - application/json
+      description: Menolak permintaan refund
+      parameters:
+      - description: Refund ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/refund.ApproveRefundReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Refund berhasil ditolak
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reject Refund
+      tags:
+      - 10. Refund
+  /admin/vouchers:
+    get:
+      description: Daftar voucher
+      parameters:
+      - in: query
+        name: is_active
+        type: boolean
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: merchant_id
+        type: string
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar voucher
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List Vouchers
+      tags:
+      - 8. Voucher
+    post:
+      consumes:
+      - application/json
+      description: Membuat voucher atau kode promo
+      parameters:
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/voucher.CreateVoucherReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Voucher berhasil dibuat
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create Voucher
+      tags:
+      - 8. Voucher
+  /admin/vouchers/{id}:
+    delete:
+      description: Menonaktifkan voucher (soft delete, histori redemption tetap tersimpan)
+      parameters:
+      - description: Voucher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Voucher berhasil dinonaktifkan
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete Voucher
+      tags:
+      - 8. Voucher
+    get:
+      description: Detail satu voucher
+      parameters:
+      - description: Voucher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil detail voucher
+          schema:
+            $ref: '#/definitions/voucher.VoucherResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Voucher Detail
+      tags:
+      - 8. Voucher
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui voucher
+      parameters:
+      - description: Voucher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/voucher.UpdateVoucherReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Voucher berhasil diperbarui
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update Voucher
+      tags:
+      - 8. Voucher
   /content-page/faqs:
     get:
       consumes:
@@ -712,6 +1731,482 @@ paths:
       summary: Get Merchants
       tags:
       - Merchant
+  /merchant/balance:
+    get:
+      description: Saldo seller saat ini setelah dikurangi komisi dan payout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil saldo
+          schema:
+            $ref: '#/definitions/settlement.BalanceResponse'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Merchant Balance
+      tags:
+      - 9. Settlement
+  /merchant/ledger:
+    get:
+      description: Daftar catatan keuangan milik seller (komisi, payout, refund)
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil ledger
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Merchant Ledger
+      tags:
+      - 9. Settlement
+  /merchant/orders:
+    get:
+      description: Daftar order yang memuat barang milik seller yang sedang login
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - enum:
+        - PENDING
+        - PAID
+        - PROCESSING
+        - SHIPPED
+        - COMPLETED
+        - CANCELLED
+        - EXPIRED
+        - REFUNDED
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar order
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller List Orders
+      tags:
+      - 7. Seller Panel
+  /merchant/orders/{id}:
+    get:
+      description: Detail order, dipangkas hanya ke item milik seller yang requesting
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil detail order
+          schema:
+            $ref: '#/definitions/merchant.SellerOrderResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Get Order
+      tags:
+      - 7. Seller Panel
+  /merchant/payouts:
+    post:
+      consumes:
+      - application/json
+      description: Seller mengajukan pencairan dana. Saldo baru berkurang setelah
+        disetujui finance.
+      parameters:
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/settlement.CreatePayoutReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Pengajuan payout berhasil dibuat
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Request Payout
+      tags:
+      - 9. Settlement
+  /merchant/products:
+    get:
+      description: Daftar produk milik seller yang sedang login
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      - in: query
+        name: sort
+        type: string
+      - enum:
+        - draft
+        - active
+        - inactive
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar produk
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller List Products
+      tags:
+      - 7. Seller Panel
+    post:
+      consumes:
+      - application/json
+      description: Membuat produk baru milik seller (status draft)
+      parameters:
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/merchant.CreateSellerProductReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Produk berhasil dibuat
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Create Product
+      tags:
+      - 7. Seller Panel
+  /merchant/products/{id}:
+    delete:
+      description: Menonaktifkan produk milik seller (soft delete)
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Produk berhasil dinonaktifkan
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Delete Product
+      tags:
+      - 7. Seller Panel
+    get:
+      description: Detail satu produk milik seller
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil detail produk
+          schema:
+            $ref: '#/definitions/merchant.SellerProductResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Get Product
+      tags:
+      - 7. Seller Panel
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui produk milik seller
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/merchant.UpdateSellerProductReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Produk berhasil diperbarui
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Update Product
+      tags:
+      - 7. Seller Panel
+  /merchant/products/{id}/variants:
+    get:
+      description: Daftar variant milik satu produk milik seller
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar variant
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller List Variants
+      tags:
+      - 7. Seller Panel
+    post:
+      consumes:
+      - application/json
+      description: Menambah variant baru ke produk milik seller
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/merchant.CreateSellerVariantReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Variant berhasil dibuat
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Create Variant
+      tags:
+      - 7. Seller Panel
+  /merchant/stats:
+    get:
+      description: 'Ringkasan dashboard seller: produk, order, pendapatan, dan saldo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil ringkasan
+          schema:
+            $ref: '#/definitions/merchant.SellerStatsResponse'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Dashboard Stats
+      tags:
+      - 7. Seller Panel
+  /merchant/variants/{variantId}:
+    delete:
+      description: Menonaktifkan variant milik seller (soft delete)
+      parameters:
+      - description: Variant ID
+        in: path
+        name: variantId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Variant berhasil dinonaktifkan
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Delete Variant
+      tags:
+      - 7. Seller Panel
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui variant milik seller. Stok hanya bisa ditambah, tidak
+        dikurangi manual.
+      parameters:
+      - description: Variant ID
+        in: path
+        name: variantId
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/merchant.UpdateSellerVariantReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Variant berhasil diperbarui
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Seller Update Variant
+      tags:
+      - 7. Seller Panel
   /order:
     get:
       description: Mengambil daftar order milik user yang login
@@ -807,6 +2302,55 @@ paths:
       summary: Create Payment Link
       tags:
       - 4. Order
+  /order/{id}/refund:
+    post:
+      consumes:
+      - application/json
+      description: MengAJUKAN refund untuk order milik sendiri. Dana belum berpindah
+        sampai disetujui finance.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/refund.CreateRefundReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Permintaan refund berhasil dibuat
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Request Refund
+      tags:
+      - 10. Refund
   /order/notification:
     post:
       consumes:
@@ -987,6 +2531,29 @@ paths:
       summary: Upload Image
       tags:
       - Upload
+  /voucher/validate:
+    get:
+      description: |-
+        Mengecek voucher terhadap nilai belanja, tanpa mengubah apa pun.
+        Selalu mengembalikan 200 dengan flag valid; voucher tidak berlaku adalah jawaban normal.
+      parameters:
+      - in: query
+        name: amount
+        type: number
+      - in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Hasil validasi voucher
+          schema:
+            $ref: '#/definitions/voucher.ValidateVoucherResponse'
+      summary: Validate Voucher
+      tags:
+      - 8. Voucher
 swagger: "2.0"
 tags:
 - name: 1. Health Check

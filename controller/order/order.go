@@ -9,7 +9,10 @@ import (
 	reviewRepo "website-api/repository/review"
 	userRepo "website-api/repository/user"
 	userAddressRepo "website-api/repository/user_address"
+	voucherRepo "website-api/repository/voucher"
+	settlementRepo "website-api/repository/settlement"
 	"website-api/service/order"
+	settlementService "website-api/service/settlement"
 	midtransProvider "website-api/third-party/provider/midtrans"
 	rajaongkirProvider "website-api/third-party/provider/rajaongkir"
 	"website-api/worker"
@@ -33,6 +36,8 @@ func NewController(db *gorm.DB) *controller {
 			userAddressRepo.NewRepo(db),
 			merchantRepo.NewRepo(db),
 			reviewRepo.NewRepo(db),
+			voucherRepo.NewRepo(db),
+			settlementService.NewService(settlementRepo.NewRepo(db)),
 			transaction.NewTransactionManager(db),
 			midtransClient,
 			rajaongkirProvider.NewClient(),

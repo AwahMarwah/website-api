@@ -2,10 +2,15 @@ package merchant
 
 import (
 	"net/http"
+	"website-api/database/transaction"
 	"website-api/library/response"
 	"website-api/middleware"
 	merchantModel "website-api/model/merchant"
-	merchantRepo "website-api/repository/merchant"
+	"website-api/repository/merchant"
+	orderRepo "website-api/repository/order"
+	productRepo "website-api/repository/product"
+	product_variant "website-api/repository/product-variant"
+	settlementRepo "website-api/repository/settlement"
 	merchantService "website-api/service/merchant"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +22,14 @@ type controller struct {
 }
 
 func NewController(db *gorm.DB) *controller {
-	return &controller{merchantService: merchantService.NewService(merchantRepo.NewRepo(db))}
+	return &controller{merchantService: merchantService.NewService(
+		merchant.NewRepo(db),
+		productRepo.NewRepo(db),
+		product_variant.NewRepo(db),
+		orderRepo.NewRepo(db),
+		settlementRepo.NewRepo(db),
+		transaction.NewTransactionManager(db),
+	)}
 }
 
 func (c *controller) Register(ctx *gin.Context) {

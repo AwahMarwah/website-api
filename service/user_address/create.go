@@ -89,43 +89,6 @@ func (s *service) Create(reqBody *userAddressModel.CreateUserAddressRequest) err
 			masterDistrict := utils.NormalizeRegionName(district.Name)
 			masterSubdistrict := utils.NormalizeRegionName(subdistrict.Name)
 
-			fmt.Println("========== MATCH DEBUG ==========")
-
-			fmt.Printf(
-				"Province     : %q == %q => %v\n",
-				roProvince,
-				masterProvince,
-				roProvince == masterProvince,
-			)
-
-			fmt.Printf(
-				"City         : %q == %q => %v\n",
-				roCity,
-				masterCity,
-				roCity == masterCity,
-			)
-
-			fmt.Printf(
-				"District     : %q == %q => %v\n",
-				roDistrict,
-				masterDistrict,
-				roDistrict == masterDistrict,
-			)
-
-			fmt.Printf(
-				"Subdistrict  : %q == %q => %v\n",
-				roSubdistrict,
-				masterSubdistrict,
-				roSubdistrict == masterSubdistrict,
-			)
-
-			fmt.Printf(
-				"Postal Code  : %q == %q => %v\n",
-				destination.ZipCode,
-				reqBody.PostalCode,
-				destination.ZipCode == reqBody.PostalCode,
-			)
-
 			if roProvince == masterProvince &&
 				roCity == masterCity &&
 				roDistrict == masterDistrict &&
@@ -133,14 +96,10 @@ func (s *service) Create(reqBody *userAddressModel.CreateUserAddressRequest) err
 				strings.TrimSpace(destination.ZipCode) ==
 					strings.TrimSpace(reqBody.PostalCode) {
 
-				fmt.Println("✅ DESTINATION MATCH:", destination.ID)
-
 				destinationID = destination.ID
 				break
 			}
 		}
-
-		fmt.Println(destinationID, "ada harusnya")
 
 		if destinationID == 0 {
 			return fmt.Errorf(

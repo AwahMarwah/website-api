@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -24,7 +25,7 @@ func NewRedis() *redis.Client {
 	}
 
 	addr := host + ":" + port
-	fmt.Println("Redis Addr:", addr)
+	log.Printf("redis: connecting to %s (db %d)", addr, db)
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
@@ -40,6 +41,6 @@ func NewRedis() *redis.Client {
 		panic(fmt.Sprintf("Redis connection failed: %v", err))
 	}
 
-	fmt.Println("Redis Connected")
+	log.Printf("redis: connected to %s", addr)
 	return rdb
 }

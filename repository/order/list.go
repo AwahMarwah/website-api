@@ -1,10 +1,18 @@
 package order
 
-import "website-api/model/order"
+import (
+	"gorm.io/gorm"
+
+	"website-api/model/order"
+)
 
 func (r *repo) FindByIDWithItems(id string) (orderModel order.Order, items []order.OrderItem, err error) {
 	err = r.db.
 		Preload("Items.ProductVariant.Product").
+		Preload("Items.Merchant").
+		Preload("StatusHistories", func(db *gorm.DB) *gorm.DB {
+			return db.Order("created_at ASC")
+		}).
 		Where("id = ?", id).
 		First(&orderModel).Error
 	if err != nil {
@@ -23,6 +31,7 @@ func (r *repo) FindByUserID(userID, status string, limit, offset int) (orders []
 	}
 	err = query.
 		Preload("Items.ProductVariant.Product").
+		Preload("Items.Merchant").
 		Limit(limit).
 		Offset(offset).
 		Order("created_at DESC").
@@ -40,6 +49,7 @@ func (r *repo) FindAll(status string, limit, offset int) (orders []order.Order, 
 	}
 	err = query.
 		Preload("Items.ProductVariant.Product").
+		Preload("Items.Merchant").
 		Limit(limit).
 		Offset(offset).
 		Order("created_at DESC").

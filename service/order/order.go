@@ -10,6 +10,8 @@ import (
 	reviewRepo "website-api/repository/review"
 	userRepo "website-api/repository/user"
 	userAddressRepo "website-api/repository/user_address"
+	voucherRepo "website-api/repository/voucher"
+	settlementService "website-api/service/settlement"
 	"website-api/third-party/provider/midtrans"
 	"website-api/third-party/provider/rajaongkir"
 
@@ -26,11 +28,12 @@ type (
 		CreatePaymentLink(orderID, userID, roleName string) (order.PaymentLinkResponse, int, error)
 		HandleNotification(payload midtrans.NotificationPayload) (order.NotificationResponse, int, error)
 		CancelExpiredOrders() (int, error)
+		ReconcilePayments() (int, error)
 		List(req *order.ListOrderReqQuery) (resData []order.OrderResponse, count int64, statusCode int, err error)
 		Detail(id, userID, roleName string) (resData order.OrderResponse, statusCode int, err error)
 		ListAdmin(req *order.ListOrderReqQuery) (resData []order.OrderResponse, count int64, statusCode int, err error)
-		UpdateStatusAdmin(id, status string) (int, error)
-		CancelOrder(orderID, userID string) (int, error)
+		UpdateStatusAdmin(id, actorID, actorRole, status, note string) (int, error)
+		CancelOrder(orderID, userID, roleName string) (int, error)
 	}
 
 	service struct {
@@ -40,8 +43,10 @@ type (
 		userRepo           userRepo.IRepo
 		userAddressRepo    userAddressRepo.IRepo
 		merchantRepo       merchantRepo.IRepo
-		reviewRepo         reviewRepo.IRepo
-		txManager          transaction.ITransactionManager
+	reviewRepo         reviewRepo.IRepo
+	voucherRepo        voucherRepo.IRepo
+	settlementService  settlementService.IService
+	txManager          transaction.ITransactionManager
 		midtransProvider   midtrans.Provider
 		rajaOngkir         rajaongkir.Provider
 		queueClient        QueueClient
@@ -56,6 +61,8 @@ func NewService(
 	userAddressRepo userAddressRepo.IRepo,
 	merchantRepo merchantRepo.IRepo,
 	reviewRepo reviewRepo.IRepo,
+	voucherRepo voucherRepo.IRepo,
+	settlementService settlementService.IService,
 	txManager transaction.ITransactionManager,
 	midtransProvider midtrans.Provider,
 	rajaOngkir rajaongkir.Provider,
@@ -69,6 +76,8 @@ func NewService(
 		userAddressRepo:    userAddressRepo,
 		merchantRepo:       merchantRepo,
 		reviewRepo:         reviewRepo,
+		voucherRepo:        voucherRepo,
+		settlementService:  settlementService,
 		txManager:          txManager,
 		midtransProvider:   midtransProvider,
 		rajaOngkir:         rajaOngkir,

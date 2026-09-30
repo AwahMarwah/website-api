@@ -4,6 +4,8 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
+
+	"website-api/common"
 )
 
 // NotificationPayload adalah struktur payload yang dikirim Midtrans ke webhook
@@ -48,26 +50,45 @@ func (c *Client) VerifySignature(payload NotificationPayload) bool {
 }
 
 // ResolveStatus memetakan status transaksi Midtrans ke status order internal.
-// Mengembalikan status order representatif untuk disimpan (PAID/FAILED/EXPIRED/PENDING).
+//
+// Status refund TIDAK lagi dipetakan ke CANCELLED: uang yang sudah keluar untuk order
+// yang sama sekali berbeda dari order yang dibatalkan sebelum dibayar. Per refunded
+// ditangani sebagai status tersendiri supaya tidak hilang jejaknya.
 func (p NotificationPayload) ResolveStatus() string {
 	switch p.TransactionStatus {
 	case "capture":
 		if p.FraudStatus == "accept" {
-			return "PAID"
+			return common.OrderStatusPaid
 		}
 		// fraud status challenge/deny dianggap pending untuk review
-		return "PENDING"
+		return common.OrderStatusPending
 	case "settlement":
-		return "PAID"
+		return common.OrderStatusPaid
 	case "pending":
-		return "PENDING"
+		return common.OrderStatusPending
 	case "deny", "cancel", "failure":
-		return "CANCELLED"
+		return common.OrderStatusCancelled
 	case "expire":
-		return "EXPIRED"
+		return common.OrderStatusExpired
 	case "refund", "partial_refund":
-		return "CANCELLED"
+		return common.OrderStatusRefunded
 	default:
-		return "PENDING"
+		return common.OrderStatusPending
 	}
+}
+
+// IsRefund menandai notifikasi yang resulted dalam pengembalian dana.
+func (p NotificationPayload) IsRefund() bool {
+	return p.TransactionStatus == "refund" || p.TransactionStatus == "partial_refund"
+}
+
+// IsFinal menandai notifikasi yang tidak akan memicu perubahan status lagi.
+// Midtrans mengirim beberapa notifikasi beruntun untuk satu transaksi; tanpa ini
+// email konfirmasi bisa terkirim berkali-kali.
+func (p NotificationPayload) IsFinal() bool {
+	switch p.TransactionStatus {
+	case "settlement", "deny", "cancel", "failure", "expire", "refund", "partial_refund":
+		return true
+	}
+	return false
 }

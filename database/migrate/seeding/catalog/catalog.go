@@ -6,6 +6,7 @@ import (
 	"time"
 	"website-api/database"
 
+	"gorm.io/gorm"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -57,6 +58,11 @@ var brands = []brandSeed{
 }
 
 var categories = []catSeed{
+	{id: "cat-001", name: "Men Fashion", slug: "men-fashion"},
+	{id: "cat-002", name: "Women Fashion", slug: "women-fashion"},
+	{id: "cat-003", name: "Shoes", slug: "shoes"},
+	{id: "cat-004", name: "Tops", slug: "tops", parentID: "cat-001"},
+	{id: "cat-005", name: "Sport", slug: "sport", parentID: "cat-003"},
 	{id: "cat-006", name: "Electronics", slug: "electronics"},
 	{id: "cat-007", name: "Accessories", slug: "accessories"},
 	{id: "cat-008", name: "Outerwear", slug: "outerwear"},
@@ -156,13 +162,28 @@ var variants = []variantSeed{
 	{prodID: "prod-017", sku: "CV-RSH-001-41", name: "White - 41", price: 1100000, stock: 11, weightKg: 0.6},
 }
 
-// merchantByIndex memetakan index seed merchant
-func merchantByIndex() []string {
-	return []string{
-		"fe4c58b4-d58f-4ac4-a00f-a73e05a233d0", // Toko Nike Sporting
-		"46e9ede4-b1ff-4664-b03f-60303462f670", // Adidas Store Bandung
-		"ceeacc20-a635-4efd-9971-eef331f91eab", // Uniqlo Central Java
+// merchantSlugs urutan merchant hasil seed merchant.go (slug).
+var merchantSlugs = []string{
+	"toko-nike-sporting",   // Toko Nike Sporting
+	"adidas-store-bandung", // Adidas Store Bandung
+	"uniqlo-central-java",  // Uniqlo Central Java
+}
+
+// resolveMerchantIDs mengambil id merchant dari DB berdasarkan slug.
+// Menghindari hardcoded UUID yang tidak sinkron dengan seed merchant.
+func resolveMerchantIDs(db *gorm.DB, slugs []string) ([]string, error) {
+	ids := make([]string, 0, len(slugs))
+	for _, slug := range slugs {
+		var id string
+		if err := db.Raw("SELECT id FROM merchants WHERE slug = ? LIMIT 1", slug).Scan(&id).Error; err != nil {
+			return nil, fmt.Errorf("gagal ambil merchant %s: %w", slug, err)
+		}
+		if id == "" {
+			return nil, fmt.Errorf("merchant %s belum di-seed; jalankan seed merchant terlebih dahulu", slug)
+		}
+		ids = append(ids, id)
 	}
+	return ids, nil
 }
 
 // productCategoryMap: slug produk -> kategori id
@@ -195,7 +216,10 @@ func main() {
 	}()
 
 	now := time.Now()
-	merchants := merchantByIndex()
+	merchants, err := resolveMerchantIDs(db.GormDb, merchantSlugs)
+	if err != nil {
+		log.Fatalf("catalog seeding dibatalkan: %v", err)
+	}
 
 	// 1. Brands (upsert by slug; set logo_url)
 	for _, b := range brands {
@@ -210,10 +234,6 @@ func main() {
 
 	// 2. Categories (insert if not exists)
 	for _, c := range categories {
-		parent := c.parentID
-		if parent == "" {
-			parent = "NULL"
-		}
 		if err := db.GormDb.Exec(
 			"INSERT INTO categories (id, name, slug, parent_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (slug) DO NOTHING",
 			c.id, c.name, c.slug, nullable(c.parentID), now, now,
